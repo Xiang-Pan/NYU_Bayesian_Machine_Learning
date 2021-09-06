@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2021/Arch Linux)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: elegantpaper-en.aux
+The style file: apalike.bst
+Database file #1: wpref.bib
+You've used 3 entries,
+            1935 wiz_defined-function locations,
+            493 strings with 4217 characters,
+and the built_in function-call counts, 1284 in all, are:
+= -- 129
+> -- 38
+< -- 3
++ -- 12
+- -- 12
+* -- 104
+:= -- 215
+add.period$ -- 9
+call.type$ -- 3
+change.case$ -- 21
+chr.to.int$ -- 3
+cite$ -- 3
+duplicate$ -- 51
+empty$ -- 96
+format.name$ -- 17
+if$ -- 262
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 3
+newline$ -- 18
+num.names$ -- 9
+pop$ -- 15
+preamble$ -- 1
+purify$ -- 21
+quote$ -- 0
+skip$ -- 45
+stack$ -- 0
+substring$ -- 110
+swap$ -- 12
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 18
+warning$ -- 0
+while$ -- 11
+width$ -- 0
+write$ -- 41
