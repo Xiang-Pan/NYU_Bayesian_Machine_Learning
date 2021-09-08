@@ -1,0 +1,45 @@
+%!TEX program = pdflatex
+% Full chain: pdflatex -> bibtex -> pdflatex -> pdflatex
+\documentclass[11pt,en,cite=authoryear]{elegantpaper}
+\title{Reading Notes for ch1}
+\author{Xiang Pan}
+% \date{\today}
+% \date{}
+\institute{New York University}
+% cmd for this doc
+% \usepackage{array}
+% \newcommand{\ccr}[1]{\makecell{{\color{#1}\rule{1cm}{1cm}}}}
+
+\usepackage{titling}
+
+\begin{document}
+% \topskip{1pt}
+\setlength{\droptitle}{-10em} 
+% \maketitle
+\section{Intorduction Problem Setting}
+The introduction use polynomial curve fitting as the example. 
+
+$$y(x, \mathbf{w})=w_{0}+w_{1} x+w_{2} x^{2}+\ldots+w_{M} x^{M}=\sum_{j=0}^{M} w_{j} x^{j}$$
+
+we can use the general defined loss function to describe the fitting performance and the normilized RMS loss function(in order to make compare different dataset size).
+
+$$E(\mathbf{w})=\frac{1}{2} \sum_{n=1}^{N}\left\{y\left(x_{n}, \mathbf{w}\right)-t_{n}\right\}^{2}$$
+
+$$E_{\mathrm{RMS}}=\sqrt{2 E\left(\mathbf{w}^{\star}\right) / N}$$
+
+We can use the penalty term to control the model complexity in order to match the problem complexity. (As mentioned in class, the DL model can be overparameterized model, which does not follow the traditional model complexity control theory)
+
+$$\widetilde{E}(\mathbf{w})=\frac{1}{2} \sum_{n=1}^{N}\left\{y\left(x_{n}, \mathbf{w}\right)-t_{n}\right\}^{2}+\frac{\lambda}{2}\|\mathbf{w}\|^{2}$$
+
+\section{Probability Theory}
+This section is about the genearl probality theory in discret condition and continus condition.
+
+\section{dfsd}
+
+
+\bibliography{ref}
+
+\appendix
+%\appendixpage
+\addappheadtotoc
+\end{document}
