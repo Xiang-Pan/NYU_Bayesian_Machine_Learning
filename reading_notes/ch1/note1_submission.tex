@@ -1,20 +1,36 @@
 %!TEX program = pdflatex
 % Full chain: pdflatex -> bibtex -> pdflatex -> pdflatex
-\documentclass[11pt,en,cite=authoryear]{elegantpaper}
+% \documentclass[11pt,en,cite=authoryear]{elegantpaper}
+\documentclass{article}
 \title{Reading Notes for ch1}
 \author{Xiang Pan}
 % \date{\today}
 % \date{}
-\institute{New York University}
+% \institute{New York University}
 % cmd for this doc
 % \usepackage{array}
 % \newcommand{\ccr}[1]{\makecell{{\color{#1}\rule{1cm}{1cm}}}}
 \usepackage{url}
 \usepackage{titling}
+\usepackage{geometry}
+\geometry{a4paper,scale=0.8}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    citecolor=cyan,
+}
+
 
 \begin{document}
+% \setlength{\noindent}{2em}
 % \topskip{1pt}
-\setlength{\droptitle}{-10em} 
+% \setlength{\droptitle}{-em} 
+% \setlength{\lineskip}{-1.5em}
+% \setlength{\parskip}{0em} 
+
 % \maketitle
 \section{Intorduction Problem Setting}
 The introduction use polynomial curve fitting as example. We can use the general defined loss function to describe the fitting performance and the normilized RMS loss function.
@@ -31,9 +47,9 @@ We can use the penalty term to control the model complexity in order to match th
 
 $$\widetilde{E}(\mathbf{w})=\frac{1}{2} \sum_{n=1}^{N}\left\{y\left(x_{n}, \mathbf{w}\right)-t_{n}\right\}^{2}+\frac{\lambda}{2}\|\mathbf{w}\|^{2}$$
 
-\section{Probability Theory}
+\section{Probability Theory} \footnote{Limited to the page limit, you can get the full version note at \url{https://github.com/Xiang-Pan/NYU_Baysian_Machine_Learning/blob/master/reading_notes/ch1/note1.pdf} }
 % \subsection{}
-This section describe the general probability defintion in descrete conditoin and continuous condition. With Bayes' theorem and the distribution, we can describe the learning processure in probability perspective.  \footnote{Limited to the page limit, you can get the full version note at \url{https://github.com/Xiang-Pan/NYU_Baysian_Machine_Learning/blob/master/reading_notes/ch1/note1.pdf} }
+This section describe the general probability defintion in descrete conditoin and continuous condition. With Bayes' theorem and the distribution, we can describe the learning processure in probability perspective. 
 % \subsection{Discrete Conditoin}
 
 % $$\text{sum rule}\quad p(X, Y)=p(Y \mid X) p(X)$$
@@ -88,20 +104,18 @@ We can remove the term that do not depend on w, and scale the whole equation, th
 $$\frac{1}{\beta_{\mathrm{ML}}}=\frac{1}{N} \sum_{n=1}^{N}\left\{y\left(x_{n}, \mathbf{w}_{\mathrm{ML}}\right)-t_{n}\right\}^{2}$$.
 
 For inference, we can have,
-$$
+$
 p\left(t \mid x, \mathbf{w}_{\mathrm{ML}}, \beta_{\mathrm{ML}}\right)=\mathcal{N}\left(t \mid y\left(x, \mathbf{w}_{\mathrm{ML}}\right), \beta_{\mathrm{ML}}^{-1}\right)
-$$
+$
+and the Prediction distribution, 
 % \subsection{Prediction Distribution}
-% $$
-% p(t \mid x, \mathbf{x}, \mathbf{t})=\int p(t \mid x, \mathbf{w}) p(\mathbf{w} \mid \mathbf{x}, \mathbf{t}) \mathrm{d} \mathbf{w}
-% $$
+$
+p(t \mid x, \mathbf{x}, \mathbf{t})=\int p(t \mid x, \mathbf{w}) p(\mathbf{w} \mid \mathbf{x}, \mathbf{t}) \mathrm{d} \mathbf{w}
+$.
 
 \section{Model Selection}
-cross-validation drawbacks:
-\begin{itemize}
-    \item training is itself computationally expensive
-    \item multiple complexity parameters for a single model
-\end{itemize}
+cross-validation drawbacks: the training is itself computationally expensive and multiple complexity parameters for a single model.
+
 
 % We need measure of performance which depends only on the training data and which does not suffer from bias due to over-ﬁtting.
 % $$
@@ -119,12 +133,9 @@ We have some observation and assumption for the high-dimensional data, which hel
 
 
 \section{Decision Theory}
-Bayes’ theorem,
-
-$$
+Bayes’ theorem, $
 p\left(\mathcal{C}_{k} \mid \mathbf{x}\right)=\frac{p\left(\mathbf{x} \mid \mathcal{C}_{k}\right) p\left(\mathcal{C}_{k}\right)}{p(\mathbf{x})}
-$$
-
+$.
 Minimizing the misclassiﬁcation rate (or maximizing the correct classfication rate) to make the decision.
 % $$
 % \begin{aligned}
@@ -165,5 +176,5 @@ We have three typical ways to describe the inference processure, however, we may
 
 \appendix
 %\appendixpage
-\addappheadtotoc
+% \addappheadtotoc
 \end{document}
