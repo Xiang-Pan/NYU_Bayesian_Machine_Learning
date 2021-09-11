@@ -1,0 +1,61 @@
+
+\documentclass{article}
+\title{Reading Notes for ch3 Probability Distributions}
+\author{Xiang Pan}
+
+\usepackage{url}
+\usepackage{titling}
+\usepackage{geometry}
+
+\geometry{a4paper,scale=0.8}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{amsfonts}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    citecolor=cyan,
+}
+
+
+\begin{document}
+\maketitle
+\section{Linear Basis Function Models} 
+This section just reviews the basic linear regression setting. 
+\section{Bias-Variance Decomposition}
+$$
+\text { expected loss }=(\text { bias })^{2}+\text { variance }+\text { noise }
+$$
+$$
+\begin{aligned}
+(\text { bias })^{2} &=\int\left\{\mathbb{E}_{\mathcal{D}}[y(\mathbf{x} ; \mathcal{D})]-h(\mathbf{x})\right\}^{2} p(\mathbf{x}) \mathrm{d} \mathbf{x} \\
+\text { variance } &=\int \mathbb{E}_{\mathcal{D}}\left[\left\{y(\mathbf{x} ; \mathcal{D})-\mathbb{E}_{\mathcal{D}}[y(\mathbf{x} ; \mathcal{D})]\right\}^{2}\right] p(\mathbf{x}) \mathrm{d} \mathbf{x} \\
+\text { noise } &=\int\{h(\mathbf{x})-t\}^{2} p(\mathbf{x}, t) \mathrm{d} \mathbf{x} \mathrm{d} t
+\end{aligned}
+$$
+
+Very flexible models having low bias and high variance, and relatively rigid models having high bias and low variance.
+\section{Bayesian Liear Regression}
+$$
+p(t \mid \mathbf{t}, \alpha, \beta)=\int p(t \mid \mathbf{w}, \beta) p(\mathbf{w} \mid \mathbf{t}, \alpha, \beta) \mathrm{d} \mathbf{w}
+$$
+$$
+p(t \mid \mathbf{x}, \mathbf{t}, \alpha, \beta)=\mathcal{N}\left(t \mid \mathbf{m}_{N}^{\mathrm{T}} \boldsymbol{\phi}(\mathbf{x}), \sigma_{N}^{2}(\mathbf{x})\right)
+$$
+$$
+\sigma_{N}^{2}(\mathbf{x})= \text{noise on the data} + \text{uncertainty associated with the parameters w.}
+$$
+
+$$
+\sigma_{N}^{2}(\mathbf{x})=\frac{1}{\beta}+\phi(\mathbf{x})^{\mathrm{T}} \mathbf{S}_{N} \phi(\mathbf{x})
+$$
+When dataset size get unlimited, the second term goes to zero.
+
+
+\bibliography{ref}
+
+\appendix
+\end{document}
