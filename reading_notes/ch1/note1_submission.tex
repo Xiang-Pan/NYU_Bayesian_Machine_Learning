@@ -1,6 +1,3 @@
-%!TEX program = pdflatex
-% Full chain: pdflatex -> bibtex -> pdflatex -> pdflatex
-% \documentclass[11pt,en,cite=authoryear]{elegantpaper}
 \documentclass{article}
 \title{Reading Notes for ch1}
 \author{Xiang Pan}
@@ -47,9 +44,9 @@ We can use the penalty term to control the model complexity in order to match th
 
 $$\widetilde{E}(\mathbf{w})=\frac{1}{2} \sum_{n=1}^{N}\left\{y\left(x_{n}, \mathbf{w}\right)-t_{n}\right\}^{2}+\frac{\lambda}{2}\|\mathbf{w}\|^{2}$$
 
-\section{Probability Theory} \footnote{Limited to the page limit, you can get the full version note at \url{https://github.com/Xiang-Pan/NYU_Baysian_Machine_Learning/blob/master/reading_notes/ch1/note1.pdf} }
+\section{Probability Theory} 
 % \subsection{}
-This section describe the general probability defintion in descrete conditoin and continuous condition. With Bayes' theorem and the distribution, we can describe the learning processure in probability perspective. 
+This section describes the general probability definition in discrete conditions and continuous conditions. With Bayes' theorem and the distribution, we can describe the learning procedure from a probability perspective. \footnote{Limited to the page limit, you can get the full version note at \url{https://github.com/Xiang-Pan/NYU_Baysian_Machine_Learning/blob/master/reading_notes/ch1/note1.pdf} }
 % \subsection{Discrete Conditoin}
 
 % $$\text{sum rule}\quad p(X, Y)=p(Y \mid X) p(X)$$
@@ -86,7 +83,7 @@ This section describe the general probability defintion in descrete conditoin an
 % % \subsection{}
 
 \section{The curve fitting revisted in probabilistic perspective}
-\subsection{Piror}
+% \subsection{Piror}
 % This section firstly introduced general probability theory in discrete conditions and continue conditions. Then with Bayes theorem and gaussian distribution.
 Given the value of x, the corresponding value of t has a Gaussian distribution with a mean equal to the value $y(x, \mathbf{w})$
 
@@ -100,21 +97,21 @@ thus we can have the log likelihood,
 
 $$\ln p(\mathbf{t} \mid \mathbf{x}, \mathbf{w}, \beta)=-\frac{\beta}{2} \sum_{n=1}^{N}\left\{y\left(x_{n}, \mathbf{w}\right)-t_{n}\right\}^{2}+\frac{N}{2} \ln \beta-\frac{N}{2} \ln (2 \pi)$$.
 
-We can remove the term that do not depend on w, and scale the whole equation, then we can minimize the negative log likelihood,
+We can remove the terms that do not depend on w, and scale the whole equation, then we can minimize the negative log likelihood,
 $$\frac{1}{\beta_{\mathrm{ML}}}=\frac{1}{N} \sum_{n=1}^{N}\left\{y\left(x_{n}, \mathbf{w}_{\mathrm{ML}}\right)-t_{n}\right\}^{2}$$.
 
 For inference, we can have,
 $
 p\left(t \mid x, \mathbf{w}_{\mathrm{ML}}, \beta_{\mathrm{ML}}\right)=\mathcal{N}\left(t \mid y\left(x, \mathbf{w}_{\mathrm{ML}}\right), \beta_{\mathrm{ML}}^{-1}\right)
 $
-and the Prediction distribution, 
+and the Prediction Distribution, 
 % \subsection{Prediction Distribution}
 $
 p(t \mid x, \mathbf{x}, \mathbf{t})=\int p(t \mid x, \mathbf{w}) p(\mathbf{w} \mid \mathbf{x}, \mathbf{t}) \mathrm{d} \mathbf{w}
 $.
 
 \section{Model Selection}
-cross-validation drawbacks: the training is itself computationally expensive and multiple complexity parameters for a single model.
+Cross-validation drawbacks: the training is itself computationally expensive and has multiple complexity parameters for a single model.
 
 
 % We need measure of performance which depends only on the training data and which does not suffer from bias due to over-ﬁtting.
@@ -125,7 +122,7 @@ cross-validation drawbacks: the training is itself computationally expensive and
 % Such criteria do not take account of the uncertainty in the model parameters, however, and in practice they tend to favour overly simple models.
 
 \section{The Curse of Dimensionality}
-We have some observation and assumption for the high-dimensional data, which helps us overcome the curse of dimensionality.
+We have some observations and assumptions for the high-dimensional data, which helps us overcome the curse of dimensionality.
 % \begin{itemize}
 %     \item Real data will often be conﬁned to a region of the space having lower effective dimensionality, and in particular the directions over which important variations in the target variables occur may be so conﬁned. 
 %     \item Real data will typically exhibit some smoothness properties (at least locally) so that for the most part small changes in the input variables will produce small changes in the target variables, and so we can exploit local interpolation-like techniques to allow us to make predictions of the target variables for new values of the input variables.
@@ -153,7 +150,7 @@ Minimizing the misclassiﬁcation rate (or maximizing the correct classfication 
 (PS, these two inference methods can be the same at the inference time.  However, they MAY be different on the training procedure)
 
 \section{Inference and decision}
-We have three typical ways to describe the inference processure, however, we may prefer those methods which can keep the posterior probability.
+We have three typical ways to describe the inference procedure, however, we may prefer those methods which can keep the posterior probability.
 % Inference stage in which we use training data to learn a model for $p(C_k| x)$. 
 
 % Decision stage in which we use these posterior probabilities to make optimal class assignments.

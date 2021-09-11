@@ -1,0 +1,134 @@
+
+\documentclass{article}
+\title{Reading Notes for ch2 Probability Distributions}
+\author{Xiang Pan}
+
+\usepackage{url}
+\usepackage{titling}
+\usepackage{geometry}
+
+\geometry{a4paper,scale=0.8}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{amsfonts}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    citecolor=cyan,
+}
+
+
+\begin{document}
+\maketitle
+\section{Priors}
+\subsection{Parametric Priors}
+
+Conjugate priors: lead to posterior distributions having the same functional form as the prior.
+\begin{itemize}
+    \item Multinomial distribution: Dirichlet distribution
+    \item Gaussian distribution: Gaussian distribution
+\end{itemize}
+
+For the Exponential Family, conjugate prior,
+$$
+p(\boldsymbol{\eta} \mid \boldsymbol{\chi}, \nu)=f(\boldsymbol{\chi}, \nu) g(\boldsymbol{\eta})^{\nu} \exp \left\{\nu \boldsymbol{\eta}^{\mathrm{T}} \boldsymbol{\chi}\right\}
+$$
+conjugate posterior,
+$$
+p(\boldsymbol{\eta} \mid \mathbf{X}, \boldsymbol{\chi}, \nu) \propto g(\boldsymbol{\eta})^{\nu+N} \exp \left\{\boldsymbol{\eta}^{\mathrm{T}}\left(\sum_{n=1}^{N} \mathbf{u}\left(\mathbf{x}_{n}\right)+\nu \boldsymbol{\chi}\right)\right\}
+$$
+
+For the parameter estimation, posterior mean of $\theta$, averaged over the distribution generating the data, is equal to the prior mean of $\theta$.
+
+$$
+\mathbb{E}_{\boldsymbol{\theta}}[\boldsymbol{\theta}]=\mathbb{E}_{\mathcal{D}}\left[\mathbb{E}_{\boldsymbol{\theta}}[\boldsymbol{\theta} \mid \mathcal{D}]\right]
+$$
+
+$$
+\operatorname{var}_{\boldsymbol{\theta}}[\boldsymbol{\theta}]=\mathbb{E}_{\mathcal{D}}\left[\operatorname{var}_{\boldsymbol{\theta}}[\boldsymbol{\theta} \mid \mathcal{D}]\right]+\operatorname{var}_{\mathcal{D}}\left[\mathbb{E}_{\boldsymbol{\theta}}[\boldsymbol{\theta} \mid \mathcal{D}]\right]
+$$
+
+\subsection{Nonparametric Density Estimation}
+\textbf{Notation}
+Rigion R, total number K of points that lie inside R. V is the volume of R, N is the dataset number.
+
+We can decide the K and V from the data by fixing V and determining the value of K from the data(kernel density estimator) or ﬁxed value of K and use the data to ﬁnd an appropriate value for V(Nearest-neighbour methods).
+
+\textbf{kernel density estimator(e.g. Gaussian kernel density estimator)}: Gaussian density model is obtained by placing a Gaussian over each data point and then adding up the contributions over the whole data set, and then dividing by N.
+
+\textbf{Nearest-Neighbour methods}
+\footnote{Limited to the page limit, you can get the full version note at \url{https://github.com/Xiang-Pan/NYU_Baysian_Machine_Learning/blob/master/reading_notes/ch2/note2.pdf} }
+
+% \section{Beta Distribution}
+% $$
+% \operatorname{Bin}(m \mid N, \mu)=\left(\begin{array}{l}
+% N \\
+% m
+% \end{array}\right) \mu^{m}(1-\mu)^{N-m}
+% $$
+
+% $$
+% \operatorname{Beta}(\mu \mid a, b)=\frac{\Gamma(a+b)}{\Gamma(a) \Gamma(b)} \mu^{a-1}(1-\mu)^{b-1}
+% $$
+
+% $$
+% p(\mu \mid m, l, a, b) \propto \mu^{m+a-1}(1-\mu)^{l+b-1}
+% $$
+
+
+
+
+% \section{Dirichlet Distribution}
+% $$
+% \operatorname{Dir}(\boldsymbol{\mu} \mid \boldsymbol{\alpha})=\frac{\Gamma\left(\alpha_{0}\right)}{\Gamma\left(\alpha_{1}\right) \cdots \Gamma\left(\alpha_{K}\right)} \prod_{k=1}^{K} \mu_{k}^{\alpha_{k}-1}
+% $$
+
+% $$
+% p(\boldsymbol{\mu} \mid \mathcal{D}, \boldsymbol{\alpha}) \propto p(\mathcal{D} \mid \boldsymbol{\mu}) p(\boldsymbol{\mu} \mid \boldsymbol{\alpha}) \propto \prod_{k=1}^{K} \mu_{k}^{\alpha_{k}+m_{k}-1}
+% $$
+
+% Posterior distribution takes the form of a Dirichlet distribution, then we can determine the normalization coefﬁcient
+% $$
+% \begin{aligned}
+% p(\boldsymbol{\mu} \mid \mathcal{D}, \boldsymbol{\alpha}) &=\operatorname{Dir}(\boldsymbol{\mu} \mid \boldsymbol{\alpha}+\mathbf{m}) \\
+% &=\frac{\Gamma\left(\alpha_{0}+N\right)}{\Gamma\left(\alpha_{1}+m_{1}\right) \cdots \Gamma\left(\alpha_{K}+m_{K}\right)} \prod_{k=1}^{K} \mu_{k}^{\alpha_{k}+m_{k}-1}
+% \end{aligned}
+% $$
+
+\section{Gaussian Distribution}
+Multivariate Gaussian distribution is that if two sets of variables are jointly Gaussian, then the conditional distribution of one set conditioned on the other is again Gaussian. Similarly, the marginal distribution of either set is also Gaussian.
+\subsection{Conditional Gaussian}
+$$
+\begin{aligned}
+p\left(\mathbf{x}_{a} \mid \mathbf{x}_{b}\right) &=\mathcal{N}\left(\mathbf{x} \mid \boldsymbol{\mu}_{a \mid b}, \mathbf{\Lambda}_{a a}^{-1}\right) \\
+\boldsymbol{\mu}_{a \mid b} &=\boldsymbol{\mu}_{a}-\mathbf{\Lambda}_{a a}^{-1} \boldsymbol{\Lambda}_{a b}\left(\mathbf{x}_{b}-\boldsymbol{\mu}_{b}\right)
+\end{aligned}
+$$
+\subsection{Marginal Gaussian}
+$$
+p\left(\mathbf{x}_{a}\right)=\mathcal{N}\left(\mathbf{x}_{a} \mid \boldsymbol{\mu}_{a}, \mathbf{\Sigma}_{a a}\right)
+$$
+\subsection{Mixtures of Gaussians}
+$$
+p(\mathbf{x})=\sum_{k=1}^{K} \pi_{k} \mathcal{N}\left(\mathbf{x} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)
+$$
+
+
+$$
+\ln p(\mathbf{X} \mid \boldsymbol{\pi}, \boldsymbol{\mu}, \boldsymbol{\Sigma})=\sum_{n=1}^{N} \ln \left\{\sum_{k=1}^{K} \pi_{k} \mathcal{N}\left(\mathbf{x}_{n} \mid \boldsymbol{\mu}_{k}, \boldsymbol{\Sigma}_{k}\right)\right\}
+$$
+The maximum likelihood solution for the parameters no longer has a closed-form analytical solution.
+
+\section{Continus Estimation}
+Robbins-Monro procedure for parameter estimation:
+$$
+\theta^{(N)}=\theta^{(N-1)}+a_{N-1} \frac{\partial}{\partial \theta^{(N-1)}} \ln p\left(x_{N} \mid \theta^{(N-1)}\right)
+$$
+
+\bibliography{ref}
+
+\appendix
+\end{document}
