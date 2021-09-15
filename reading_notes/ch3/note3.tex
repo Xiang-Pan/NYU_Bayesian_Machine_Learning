@@ -1,6 +1,6 @@
 
 \documentclass{article}
-\title{Reading Notes for ch3 Probability Distributions}
+\title{Reading Notes for ch3 Linear Models for Regression}
 \author{Xiang Pan}
 
 \usepackage{url}
@@ -39,6 +39,7 @@ $$
 
 Very flexible models having low bias and high variance, and relatively rigid models having high bias and low variance.
 \section{Bayesian Liear Regression}
+\subsection{Error Decoposition}
 $$
 p(t \mid \mathbf{t}, \alpha, \beta)=\int p(t \mid \mathbf{w}, \beta) p(\mathbf{w} \mid \mathbf{t}, \alpha, \beta) \mathrm{d} \mathbf{w}
 $$
@@ -53,8 +54,53 @@ $$
 \sigma_{N}^{2}(\mathbf{x})=\frac{1}{\beta}+\phi(\mathbf{x})^{\mathrm{T}} \mathbf{S}_{N} \phi(\mathbf{x})
 $$
 When dataset size get unlimited, the second term goes to zero.
+\subsection{Equivalent kernel(smoother matrix)}
+For predictive mean,
+$$
+y\left(\mathbf{x}, \mathbf{m}_{N}\right)=\mathbf{m}_{N}^{\mathrm{T}} \boldsymbol{\phi}(\mathbf{x})=\beta \boldsymbol{\phi}(\mathbf{x})^{\mathrm{T}} \mathbf{S}_{N} \boldsymbol{\Phi}^{\mathrm{T}} \mathbf{t}=\sum_{n=1}^{N} \beta \boldsymbol{\phi}(\mathbf{x})^{\mathrm{T}} \mathbf{S}_{N} \boldsymbol{\phi}\left(\mathbf{x}_{n}\right) t_{n}
+$$
+Forming a weighted combination of the target values in which data points close to x are given higher weight than points further removed from x.
+$$
+y\left(\mathbf{x}, \mathbf{m}_{N}\right)=\sum_{n=1}^{N} k\left(\mathbf{x}, \mathbf{x}_{n}\right) t_{n}
+$$
+$$
+\begin{aligned}
+\operatorname{cov}\left[y(\mathbf{x}), y\left(\mathbf{x}^{\prime}\right)\right] &=\operatorname{cov}\left[\boldsymbol{\phi}(\mathbf{x})^{\mathrm{T}} \mathbf{w}, \mathbf{w}^{\mathrm{T}} \boldsymbol{\phi}\left(\mathbf{x}^{\prime}\right)\right] \\
+&=\boldsymbol{\phi}(\mathbf{x})^{\mathrm{T}} \mathbf{S}_{N} \boldsymbol{\phi}\left(\mathbf{x}^{\prime}\right)=\beta^{-1} k\left(\mathbf{x}, \mathbf{x}^{\prime}\right)
+\end{aligned}
+$$
 
+\section{Bayesian Model Comparison}
+\subsection{posterior distribution}
+$$
+(\text{model posterior distribution}) \propto (\text{model prior probability distribution}) * (\text{model evidence})
+$$
+$$
+p\left(\mathcal{M}_{i} \mid \mathcal{D}\right) \propto p\left(\mathcal{M}_{i}\right) p\left(\mathcal{D} \mid \mathcal{M}_{i}\right)
+$$
 
+prior probability distribution $p(M_i)$: allows us to express a preference for different models
+
+model evidence $p(D|M_i)$: preference shown by the data for different models
+
+Bayes factor $p(D | M_i)/p(D | M_j)$: the ratio of model evidences for two models.
+
+\subsection{predictive distribution}
+$$
+p(t \mid \mathbf{x}, \mathcal{D})=\sum_{i=1}^{L} p\left(t \mid \mathbf{x}, \mathcal{M}_{i}, \mathcal{D}\right) p\left(\mathcal{M}_{i} \mid \mathcal{D}\right)
+$$
+\subsection{model evidence}
+We can obtain a rough approximation to the model evidence if we assume that the posterior distribution over parameters is sharply peaked around its mode $w_{MAP}$.
+$$
+\ln p(\mathcal{D}) \simeq \ln p\left(\mathcal{D} \mid w_{\mathrm{MAP}}\right)+\ln \left(\frac{\Delta w_{\text {posterior }}}{\Delta w_{\text {prior }}}\right)
+$$
+
+\section{Evidence Approximation}
+We set the hyperparameters to speciﬁc values determined by maximizing the marginal likelihood function obtained by ﬁrst integrating over the parameters w.
+$$
+p(t \mid \mathbf{t}) \simeq p(t \mid \mathbf{t}, \widehat{\alpha}, \widehat{\beta})=\int p(t \mid \mathbf{w}, \widehat{\beta}) p(\mathbf{w} \mid \mathbf{t}, \widehat{\alpha}, \widehat{\beta}) \mathrm{d} \mathbf{w}
+$$
+update parameter iteraly.
 \bibliography{ref}
 
 \appendix
