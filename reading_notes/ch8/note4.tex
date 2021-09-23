@@ -106,6 +106,7 @@ p(\mathbf{w} \mid \mathbf{T}) \propto p(\mathbf{w}) \prod_{n=1}^{N} p\left(t_{n}
 
 An alternative way to reduce the number of independent parameters in a model is by sharing parameters (also known as tying of parameters).
 \section{Conditional Independence}
+\footnote{You can get the full version note at \\\url{https://github.com/Xiang-Pan/NYU_Bayesian_Machine_Learning/blob/master/reading_notes/ch8/build/note4.pdf}}
 Conditional Independence is widely used in causal learning \cite{pearl2016causal}. We use the name of three types of conditional independence in causal learning.
 \begin{figure}[!htb]
     \centering
@@ -157,8 +158,7 @@ Conditional Independence is widely used in causal learning \cite{pearl2016causal
 
 \begin{equation}
     \begin{aligned}
-    p(a, b \mid c) &=\frac{p(a, b, c)}{p(c)} \\
-    &=\frac{p(a) p(b) p(c \mid a, b)}{p(c)}
+    p(a, b \mid c) &=\frac{p(a, b, c)}{p(c)} =\frac{p(a) p(b) p(c \mid a, b)}{p(c)}
     \end{aligned}
 \end{equation}
 
@@ -178,8 +178,7 @@ Conditional Independence is widely used in causal learning \cite{pearl2016causal
 
 \begin{equation}
     \begin{aligned}
-    p(a, b \mid c) &=\frac{p(a, b, c)}{p(c)} \\
-    &=p(a \mid c) p(b \mid c)
+    p(a, b \mid c) &=\frac{p(a, b, c)}{p(c)} =p(a \mid c) p(b \mid c)
     \end{aligned}
 \end{equation}
 \begin{equation}
@@ -187,7 +186,37 @@ Conditional Independence is widely used in causal learning \cite{pearl2016causal
 \end{equation}
 
 \section{D-Separation}
+Consider a general directed graph in which A, B, and C are arbitrary nonintersecting sets of nodes. To evaluate whether $A \ci B | C$, we consider all possible paths from any node in A to any node in B:
+blocked paths:
+\begin{itemize}
+    \item[(a.)] the arrows on the path meet either head-to-tail or tail-to-tail at the node, and the node is in the set C, or
+    \item[(b.)]the arrows meet head-to-head at the node, and neither the node, nor any of its descendants, is in the set C.
+\end{itemize}
+If all paths are blocked, then A is said to be d-separated from B by C, and the joint distribution over all of the variables in the graph will satisfy $A \ci B | C$.
+In summary, observation (given exact value) will block the path.
 
+\section{Markov Random Fields}
+We can easily factorize directed graphs,
+\begin{equation}
+    p(x)=\prod_{i=1}^{p} p\left(x_{i} \mid x_{prior^{(i)}}\right)
+\end{equation}
+\subsection{Conditional Independence}
+\textbf{Global CI}
+
+$X_A \ci X_C | X_B$
+
+\textbf{Local CI}
+
+$a \ci \text{\{nodes - a - neighbour-a\}} | \text{neighboar of a} $
+
+\textbf{Pair CI}
+
+$x_i \ci x_j | x_ij (i \neq j)$
+
+
+
+
+\section{Inference in Graphical Models}
 
 
 \bibliographystyle{plain}
