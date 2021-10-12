@@ -1,0 +1,114 @@
+
+\documentclass{article}
+\title{Reading Notes for Bayesian Model Selection}
+\author{Xiang Pan}
+
+\usepackage{url}
+\usepackage{titling}
+\usepackage{geometry}
+
+% \geometry{a4paper,scale=0.9,left=10mm, right=10mm, top=3mm, bottom=20mm}
+\geometry{a4paper,scale=0.9}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{amsfonts}
+\usepackage{tikz}
+\def\ci{\perp\!\!\!\perp}
+\usetikzlibrary{fit,positioning}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    citecolor=cyan,
+}
+
+
+\begin{document}
+% \maketitle
+\section{Simple Monte Carlo}
+\begin{equation}
+    \mathbb{E}_{p \in \mathcal{S}}[x(p)] \equiv \frac{1}{|\mathcal{S}|} \sum_{p \in \mathcal{S}} x(p)
+\end{equation}
+
+\begin{equation}
+    \mathbb{E}_{p \in \mathcal{S}}[x(p)] \approx \frac{1}{S} \sum_{s=1}^{S} x\left(p^{(s)}\right)
+\end{equation}
+
+\begin{equation}
+    \begin{aligned}
+    p(x \mid \mathcal{D})=\int p(x \mid \theta, \mathcal{D}) p(\theta \mid \mathcal{D}) \mathrm{d} \theta &=\mathbb{E}_{p(\theta \mid \mathcal{D})}[p(x \mid \theta, \mathcal{D})] \\
+    & \approx \frac{1}{S} \sum_{s=1}^{S} p\left(x \mid \theta^{(s)}, \mathcal{D}\right), \quad \theta^{(s)} \sim p(\theta \mid \mathcal{D})
+    \end{aligned}
+\end{equation}
+
+Monte Carlo is usually simple and its $\frac{1}{\sqrt{R}}$scaling of error bars "independent of dimensionality" may be good enough.
+
+
+\subsection{Rejection Sampling}
+Straightforward explanation: rejection sampling is a method for generating random samples from a simple distribution and accepting those that within that target distribution.
+
+\subsection{Importance Sampling}
+
+Sampling over the expectation of the target distribution.
+\begin{equation}
+    \begin{aligned}
+    \int f(x) p(x) \mathrm{d} x &=\int f(x) \frac{p(x)}{q(x)} q(x) \mathrm{d} x, \quad \text { if } q(x)>0 \text { wherever } p(x)>0 \\
+    &=\int f(x) w(x) q(x) \mathrm{d} x, \quad w(x)=p(x) / q(x) \\
+    & \approx \frac{1}{S} \sum_{s=1}^{S} f\left(x^{(s)}\right) w\left(x^{(s)}\right), \quad x^{(s)} \sim q(x)
+    \end{aligned}
+\end{equation}
+
+\section{Markov chain Monte Carlo}
+Markov chain Monte Carlo methods can be used to sample from $p(x)$ distributions that are complex and have unknown normalization.
+
+\textbf{Key Idea:} We can construct an init Markov chain, then by getting the detailed balance state of markov chain to get the distribution approximation.
+
+\begin{equation}
+    p\left(x^{\prime}\right)=\sum_{x} T\left(x^{\prime} \leftarrow x\right) p(x) \quad \text { for all } x^{\prime}
+\end{equation}
+
+
+\begin{equation}
+    \widetilde{T}\left(x \leftarrow x^{\prime}\right) \propto T\left(x^{\prime} \leftarrow x\right) p(x)=\frac{T\left(x^{\prime} \leftarrow x\right) p(x)}{\sum_{x} T\left(x^{\prime} \leftarrow x\right) p(x)}=\frac{T\left(x^{\prime} \leftarrow x\right) p(x)}{p\left(x^{\prime}\right)}
+\end{equation}
+
+\begin{equation}
+    T\left(x^{\prime} \leftarrow x\right) p(x)=\widetilde{T}\left(x \leftarrow x^{\prime}\right) p\left(x^{\prime}\right) \quad \text { for all } x, x^{\prime}
+\end{equation}
+\subsection{Metropolis methods}
+The state transition matrix is related to the acceptance probability. If the sample is accepted, the current state update, otherwise using the previous state.
+\begin{equation}
+    p_{a}\left(x^{\prime} \leftarrow x\right) q\left(x^{\prime} \leftarrow x\right) p(x)=p_{a}\left(x \leftarrow x^{\prime}\right) q\left(x \leftarrow x^{\prime}\right) p\left(x^{\prime}\right), \quad \text { for all } x, x^{\prime}
+\end{equation}
+
+\subsection{Gibbs sampling}
+Gibbs sampling resamples each dimension $x_i$ of a multivariate quantity x from their conditional distributions $p(x_i| x_{j \neq i})$
+
+\subsection{Two Stage Acceptance}
+\begin{equation}
+    p_{a}=\min \left(1, \frac{q\left(x \leftarrow x^{\prime}\right) \pi\left(x^{\prime}\right)}{q\left(x^{\prime} \leftarrow x\right) \pi(x)}\right) \min \left(1, \frac{L\left(x^{\prime}\right)}{L(x)}\right)
+\end{equation}
+
+\subsection{Variants of MCMC}
+Auxiliary variable methods instantiate the auxiliary variables in a Markov chain that explores the joint distribution.
+
+\section{The Laplace Approximation}
+\begin{equation}
+    p(z)=\frac{1}{Z} f(z),
+\end{equation}
+
+Z is untractable. In the Laplace method the goal is to ﬁnd a Gaussian approximation q(z) which is centred on a mode of the distribution p(z).
+
+\begin{equation}
+    \ln f(\mathbf{z}) \simeq \ln f\left(\mathbf{z}_{0}\right)-\frac{1}{2}\left(\mathbf{z}-\mathbf{z}_{0}\right)^{\mathrm{T}} \mathbf{A}\left(\mathbf{z}-\mathbf{z}_{0}\right)
+\end{equation}
+
+\begin{equation}
+    q(\mathbf{z})=\frac{|\mathbf{A}|^{1 / 2}}{(2 \pi)^{M / 2}} \exp \left\{-\frac{1}{2}\left(\mathbf{z}-\mathbf{z}_{0}\right)^{\mathrm{T}} \mathbf{A}\left(\mathbf{z}-\mathbf{z}_{0}\right)\right\}=\mathcal{N}\left(\mathbf{z} \mid \mathbf{z}_{0}, \mathbf{A}^{-1}\right)
+    \end{equation}  
+\bibliographystyle{plain}
+\bibliography{note7}
+\appendix
+\end{document}
