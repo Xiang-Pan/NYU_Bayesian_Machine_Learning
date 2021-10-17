@@ -1,0 +1,115 @@
+\documentclass{article}
+\title{Reading Note 9 for Gaussian Process}
+\author{Xiang Pan}
+
+\usepackage{url}
+\usepackage{titling}
+\usepackage{geometry}
+
+% \geometry{a4paper,scale=0.9,left=10mm, right=10mm, top=3mm, bottom=20mm}
+\geometry{a4paper,scale=0.9}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{amsfonts}
+\usepackage{tikz}
+\def\ci{\perp\!\!\!\perp}
+\usetikzlibrary{fit,positioning}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    citecolor=cyan,
+}
+
+
+\begin{document}
+\maketitle
+\section{Introduction}
+
+In short, the ability for a model to learn from data is determined by:
+
+1. The support of the model: what solutions we think are a priori possible.
+
+2. The inductive biases of the model: what solutions we think are a priori likely.
+
+The \textbf{capacity (flexibility)} of a model $\mathcal{M}_{i}$ can be defined as the mutual information between the data $\boldsymbol{y}$ (at $N$ locations $X$ ) and predictions made by the model $\boldsymbol{y}_{*}$ (at test locations $X_{*}$ )
+
+
+
+
+\begin{equation}
+I_{i, N}=\sum_{y, y_{*}} p\left(\boldsymbol{y}, \boldsymbol{y}_{*} \mid \mathcal{M}_{i}\right) \log \frac{p\left(\boldsymbol{y}, \boldsymbol{y}_{*} \mid \mathcal{M}_{i}\right)}{p\left(\boldsymbol{y} \mid \mathcal{M}_{i}\right) p\left(\boldsymbol{y}_{*} \mid \mathcal{M}_{i}\right)}
+\end{equation}
+
+\begin{equation}
+    I_{i, N}=p(\boldsymbol{y}) \int p\left(\boldsymbol{y}_{*} \mid \boldsymbol{y}\right) \log \frac{p\left(\boldsymbol{y}_{*} \mid \boldsymbol{y}\right)}{p\left(\boldsymbol{y}_{*}\right)} d \boldsymbol{y}_{*}
+\end{equation}
+
+\section{GP}
+We are ultimately more interested in – and have stronger intuitions about – the functions that model data than the weights w in a parametric model, and we can express those intuitions with a covariance kernel.
+\begin{equation}
+    \begin{aligned}
+    p\left(\boldsymbol{y}_{*} \mid \boldsymbol{y}\right) &=\int p\left(\boldsymbol{y}_{*} \mid f(x)\right) p(f(x) \mid \boldsymbol{y}) d f(x) \\
+    p(f(x) \mid \boldsymbol{y}) & \propto p(\boldsymbol{y} \mid f(x)) p(f(x))
+    \end{aligned}
+\end{equation}
+
+\begin{equation}
+    p\left(f_{*} \mid \boldsymbol{y}\right)=\int p\left(f_{*} \mid \boldsymbol{f}\right) p(\boldsymbol{f} \mid \boldsymbol{y}) d \boldsymbol{f}
+\end{equation}
+
+\textbf{Dependency}: Hyperparameters → Parameters → Data
+
+
+\begin{equation}
+    \log p(\boldsymbol{y} \mid \boldsymbol{\theta}, X)=\overbrace{-\frac{1}{2} \boldsymbol{y}^{\top}\left(K_{\boldsymbol{\theta}}+\sigma^{2} I\right)^{-1} \boldsymbol{y}}^{\text {model fit }}-\overbrace{\frac{1}{2} \log \left|K_{\boldsymbol{\theta}}+\sigma^{2} I\right|}^{\text {complexity penalty }}-\frac{N}{2} \log (2 \pi)
+\end{equation}
+
+\textbf{Prediction}
+
+\begin{equation}
+    \boldsymbol{f}_{*} \mid X_{*}, X, \boldsymbol{y}, \boldsymbol{\theta} \sim \mathcal{N}\left(\overline{\boldsymbol{f}}_{*}, \operatorname{cov}\left(\boldsymbol{f}_{*}\right)\right)
+\end{equation}
+
+
+\begin{equation}
+    p\left(\boldsymbol{f}_{*} \mid X_{*}, X, \boldsymbol{y}\right)=\int p\left(\boldsymbol{f}_{*} \mid X_{*}, X, \boldsymbol{y}, \boldsymbol{\theta}\right) p(\boldsymbol{\theta} \mid \boldsymbol{y}) d \boldsymbol{\theta}
+\end{equation}
+\begin{equation}
+    p(\boldsymbol{\theta} \mid \boldsymbol{y}) \propto p(\boldsymbol{y} \mid \boldsymbol{\theta}) p(\boldsymbol{\theta})
+\end{equation}
+\section{Kernel}
+A kernel is \textbf{stationary} if it is invariant to translations of the inputs.
+$$
+    \begin{array}{lrr}
+    \hline \text { Covariance function } & \text { Expression } & \text { Stationary } \\
+    \hline \text { Constant } & a_{0} & \text { Yes } \\
+    \text { Linear } & x \cdot x^{\prime} & \text { No } \\
+    \text { Polynomial } & \left(x \cdot x^{\prime}+a_{0}\right)^{p} & \text { No } \\
+    \text { Squared Exponential } & \exp \left(-\frac{\left|x-x^{\prime}\right|^{2}}{2 l^{2}}\right) & \text { Yes } \\
+    \text { Matérn } & \frac{2^{1-\nu}}{\Gamma(\nu)}\left(\frac{\sqrt{2 \nu}\left|x-x^{\prime}\right|}{l}\right)^{\nu} K_{\nu}\left(\frac{\sqrt{2 \nu}\left|x-x^{\prime}\right|}{l}\right) & \text { Yes } \\
+    \text { Ornstein-Uhlenbeck } & \exp \left(-\frac{\left|x-x^{\prime}\right|}{l}\right) & \text { Yes } \\
+    \text { Rational Quadratic } & \left(1+\frac{\left|x-x^{\prime}\right|^{2}}{2 \alpha l^{2}}\right)^{-\alpha} & \text { Yes } \\
+    \text { Periodic } & \exp \left(-\frac{2 \sin ^{2}\left(\frac{x-x^{\prime}}{2}\right)}{l^{2}}\right) & \text { Yes } \\
+    \text { Gibbs } & \text { No } \\
+    \text { Spectral Mixture } & \sum_{q=1}^{Q} w_{q} \prod_{p=1}^{P} \exp \left\{-2 \pi^{2}\left(x-x^{\prime}\right)_{p}^{2} v_{q p}\right\} \cos \left(2 \pi\left(x-x^{\prime}\right)_{p}^{P} \mu_{q p}\right) & \text { Yes }
+    \end{array}
+$$
+\section{Mean Function}
+The mean function is also a powerful way to encode assumptions (inductive biases) into a Gaussian process model, the Gaussian process can leverage the assumptions of a parametric model through a mean function and also reﬂect the belief that the parametric form of that model will not be entirely accurate.
+
+\section{Feature Of GP}
+\begin{itemize}
+    \item Expressive Kernels
+    \item Exact Eﬃcient Inference: Efficiently determine the eigenvalues of a covariance matrix K
+    \item Multi-Output Gaussian Processes
+    \item Sampling Kernel Hyperparameters
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{note9}
+\nocite{*}
+\appendix
+\end{document}
