@@ -1,0 +1,701 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath, amssymb, amsthm} % ams packages %amsfonts is loaded by amssymb
+\usepackage[all,warning]{onlyamsmath}
+\usepackage{graphics, graphicx} % graphics packages
+
+
+\usepackage[margin=1in]{geometry} % more reasonable margins
+\usepackage{booktabs} % prettier tables
+\usepackage{units} % prettier fractions (?)
+
+% Small sections of multiple columns
+\usepackage{multicol}
+
+\usepackage{bm}
+
+\usepackage{natbib}
+
+\usepackage{tikz} % make graphics in latex
+\usetikzlibrary{shapes,decorations}
+\usetikzlibrary{arrows}
+\usepackage{pgfplots} % to make plots in latex
+\pgfplotsset{compat=newest} % compatibility issue
+\usepackage{enumitem, comment}
+
+% formatting
+\usepackage{fancyhdr} % for changing headers and footers
+\usepackage{url} % url 
+\usepackage[normalem]{ulem}
+\usepackage{color} % colored text + names %deprecated?
+
+
+% hyperlink in the document
+\usepackage{hyperref} % must be the last package loaded
+
+\usepackage{comment}
+
+\usepackage{parskip}
+% \usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{setspace}
+\usepackage{mathtools}
+\usepackage{picture}
+
+\usepackage{geometry}
+\geometry{right=2.0cm,left=1.0cm,top = 2.0cm, bottom = 2.0cm}
+
+% notations
+\newcommand{\one}{\ensuremath{\mathbf{1}}}
+\newcommand{\zero}{\ensuremath{\mathbf{0}}}
+\newcommand{\prob}{\ensuremath{\mathbf{P}}}
+\newcommand{\expec}{\ensuremath{\mathbf{E}}}
+\newcommand{\ind}{\ensuremath{\mathbf{I}}}
+\newcommand{\reals}{\ensuremath{\mathbb{R}}}
+\newcommand{\naturals}{\ensuremath{\mathbb{N}}}
+\newcommand{\defeq}{\ensuremath{\triangleq}}
+\newcommand{\sP}{\ensuremath{\mathsf{P}}}
+\newcommand{\sQ}{\ensuremath{\mathsf{Q}}}
+\newcommand{\sE}{\ensuremath{\mathsf{E}}}
+
+\newcommand{\mbf}[1]{{\boldsymbol{\mathbf{#1}}}}
+\renewcommand{\bm}{\mbf}
+
+
+% environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+
+
+
+\title{\vspace{-20mm} Bayesian Machine Learning \\ \vspace{5mm}  \normalsize Instructor: Andrew Gordon Wilson}
+\date{}
+\author{
+\textbf{Homework 1} \\ \textbf{Due: Tuesday September 14 (EOD) via NYU Brightspace} }
+
+
+\begin{document}
+\maketitle
+
+Show all steps, and any code used to answer the questions.
+
+\begin{enumerate}
+\item Suppose we have data $\mathcal{D} = \{(x_i, y_i)\}_{i=1}^{n}$, and $n$ is the total number
+of training points.  Assume we want to learn the regression model
+\begin{align}
+y = a x  + \epsilon_x \,,  \label{eqn: first}
+\end{align}
+where $\epsilon_x$ is independent zero mean Gaussian noise with variance $\sigma^2$: 
+$\epsilon_x \sim \mathcal{N}(0,\sigma^2)$.
+\begin{enumerate}[label=(\alph*)]
+\item (2 marks): Let $\bm{y} = (y_1,\dots,y_n)^{\top}$ and $X = \{x_i\}_{i=1}^{n}$.  Derive the 
+log likelihood for the whole training set, $\log p(\bm{y} | X, a, \sigma^2)$.
+
+\textbf{Note: following the bishop and for convenience, we use $\phi(\mathbf{x})=\mathbf{x}$ here and the following solutions}.
+
+$$
+p(y_i \mid x_i, a, \sigma^2)=\mathcal{N} \left(y_i \mid a\boldsymbol{\phi}\left({x}_{i}\right), \sigma^2 \right)
+$$
+
+$$
+p(\mathbf{y} \mid {X}, {a}, \sigma^2)=\prod_{i=1}^{n} \mathcal{N}\left(y_{i} \mid {a} \boldsymbol{\phi}\left({x}_{i}\right), \sigma^2 \right)
+$$
+
+$$
+p(\mathbf{y} \mid {X}, {a}, \sigma^2)=\prod_{i=1}^{n} \mathcal{N}\left(y_{i} \mid {a} {x}_{i}, \sigma^2 \right)
+$$
+
+
+$$
+\begin{aligned}
+\ln p(\bm{y} | X, a, \sigma^2) &= \ln p(\mathbf{y} \mid a, \sigma^2) \\
+&=\sum_{i=1}^{n} \ln \mathcal{N}\left(y_{i} \mid a \mathbf{x}_{i}, \sigma^2\right) \\
+&=\frac{N}{2} \ln \sigma^2 -\frac{N}{2} \ln (2 \pi)- \frac{1}{\sigma^2} E_{D}(\mathbf{a})
+\end{aligned}
+$$
+
+$$
+E_{D}(a)=\frac{1}{2} \sum_{i=1}^{n}\left\{ y_{i}-ax_i \right\}^{2}
+$$
+
+\item (2 marks): Given data $\mathcal{D} = \{(4,21), (9,59), (7,25), (15,127)\}$, find the maximum
+likelihood solutions for $a$ and $\sigma^2$.
+
+For the derivations of a, we can get the solution for loglikelihood equals to 
+% $$E_D(a)$$
+$$\frac{\partial{E_D(a)}}{\partial{a}} = 0$$
+
+$$a = \frac{1}{N}\sum_{i=1}^{n}\left\{ \frac{y_i}{x_i} \right\}$$
+
+a = 5.9609
+
+
+$$\frac{\partial{ln p(\bm{y} | a, \sigma^2)}}{\partial{\sigma^2}} = 0$$
+
+$$
+\sigma^2=\frac{1}{n} \sum_{i=1}^{n}\{{y_{i}-ax_i}\}^{2}
+$$
+
+$\sigma^2 = 432.3076$
+
+\item (2 marks): Suppose we instead consider the regression model 
+\begin{align}
+x = b y + \epsilon \,.
+\end{align}
+Is the maximum likelihood solution for $b = \frac{1}{a}$?  Explain why or why not -- with derivations if necessary.
+
+If the noise still follow the zero mean and variance $\sigma_y^2$.
+
+
+$$
+p\left(x \mid y, b, \sigma_y^{2}\right)=\prod_{i=1}^{n} \mathcal{N}\left(x_{i} \mid b y_{i}, \sigma_y^{2}\right)
+$$
+
+$$
+b=\frac{1}{N} \sum_{i=1}^{n}\left\{\frac{x_{i}}{y_{i}}\right\}
+$$
+
+$$
+\sigma_y^{2}=\frac{1}{N} \sum_{i=1}^{n}\left\{x_{i}-b y_{i}\right\}^{2}
+$$
+
+
+$b \neq \frac{1}{a}$
+Then the answer is NO.
+
+If we change the prior mean of noise, it is just shift of the currant distribution, the the answer is still NO.
+
+
+\item (2 marks): Suppose we place a prior distribution on $a$ such that $p(a | \gamma^2) = \mathcal{N}(0,\gamma^2)$.  Use
+the sum and product rules of probability to write down the \emph{marginal likelihood} of the data, 
+$p(\bm{y} | X, \sigma^2, \gamma^2)$, conditioned only on $X, \sigma^2, \gamma^2$.  
+
+
+\begin{align}
+p(\mathbf{y} \mid X, \sigma^2, \gamma^2)
+&=\int p(\mathbf{y} \mid {a}, \sigma^2) p({a} \mid \gamma^2) \mathrm{d} a 
+\end{align}
+
+% likelihood function,
+$$
+p(\mathbf{y} \mid {X}, {a}, \sigma^2)=\prod_{i=1}^{n} \mathcal{N}\left(y_{i} \mid {a} {x}_{i}, \sigma^2 \right)
+$$
+
+% $$
+% p\left(\mathbf{y} \mid  X, a, \sigma^{2}\right)=\mathcal{N}\left(\mathbf{y} \mid a X, \sigma^{2}\right)
+% $$
+
+prior distribution (following the bishop, we use $S_0=\gamma^2$),
+$$p({a} \mid \gamma^2) = \mathcal{N}(0,\gamma^2) = \mathcal{N}\left(a \mid 0, \gamma^2\right) = \mathcal{N}\left(a \mid 0, S_0\right)$$
+
+
+
+The exponential term for marginal likelihood,
+
+$$
+\begin{aligned}
+\text{exponential term}
+&= -\frac{1}{2\sigma^2} \sum_{i=1}^{n}\left\{\left\{y_{i}-a x_{i}\right)^{2}\right\} - \frac{1}{2\gamma^2}a^2\\
+&= -\frac{1}{2\sigma^2} \sum_{i=1}^{n}\left\{y_{i}^2-2 a x_{i} y_{i} + a^2 x_i ^2\right\} - \frac{1}{2\gamma^2}a^2\\
+&= -\frac{1}{2\sigma^2} \sum_{i=1}^{n}\left\{y_{i}^2-2 a x_{i} y_{i} + a^2 x_i ^2\right\} - \frac{1}{2\sigma^2} \frac{a^2 \sigma^2}{\gamma^2} \\
+&= -(\frac{\sum_{i=1}^{n}{x_i^2}}{2\sigma^2} + \frac{1}{2\gamma^2})a^2 + \frac{\sum_{i=1}^{n} x_i y_i}{\sigma^2} a - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}
+\end{aligned}
+$$
+
+
+We name $ -\frac{1}{2S^2}  =  -( \frac{\sum_{i=1}^{n}{x_i^2}}{2\sigma^2} + \frac{1}{2\gamma^2}) $, M = $\frac{\sum_{i=1}^{n} x_i y_i}{\sigma^2}$
+
+
+$$
+\frac{1}{S^2} =  \frac{\sum_{i=1}^{n}{x_i^2}}{\sigma^2} + \frac{1}{\gamma^2}
+$$
+
+We can rearrange the above equation,
+$$
+\begin{aligned}
+\text{exponential term}
+&= -(\frac{\sum_{i=1}^{n}{x_i^2}}{2\sigma^2} + \frac{1}{2\gamma^2})a^2 + \frac{\sum_{i=1}^{n} x_i y_i}{\sigma^2} a - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\\
+&= -\frac{1}{2S^2} a^2 + M a - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2} \\
+&= -\frac{1}{2S^2} (a^2 - 2S^2Ma + S^4M^2) + \frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2} \\
+&= -\frac{1}{2S^2} (a-S^2M)^2 + \frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2} \\
+&= -\frac{1}{2S^2} (a-S^2M)^2 + \text{constant term}
+\end{aligned}
+$$
+
+
+We have the standard gaussian distribution format,
+
+$$\mathcal{N}\left(x \mid \mu, \sigma^{2}\right)=\frac{1}{\left(2 \pi \sigma^{2}\right)^{1 / 2}} \exp \left\{-\frac{1}{2 \sigma^{2}}(x-\mu)^{2}\right\}$$
+
+We can get the new target gaussian distribution,  $\mu = S^2M$, $\sigma^{2} = S^2$. (The notations here are just for the standard gaussian distribution, and they are different from the previous menthioned notation.)
+
+$$
+\begin{aligned}
+p(\mathbf{y} \mid X, \sigma^2, \gamma^2)
+&=\int p(\mathbf{y} \mid {a}, \sigma^2) p({a} \mid \gamma^2) \mathrm{d} a \\
+&=\int \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{2\pi \gamma^2}} \exp\{\text{exponential term}\} \mathrm{d} a \\
+&=\int \frac{1}{\sqrt{2\pi S^2}} \exp\{-\frac{1}{2S^2} (a-S^2M)^2\}  \sqrt{2\pi S^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{2\pi \gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\}\mathrm{d} a \\
+&= \sqrt{2\pi S^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{2\pi \gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+&= \sqrt{ S^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{\gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+\end{aligned}
+$$
+
+% $$
+% -2 \boldsymbol{m}_{\boldsymbol{n}}{S}^{-2}= -2M
+% $$
+
+
+
+
+
+Here, we use $\int \frac{1}{\sqrt{2\pi S^2}} \exp\{-\frac{1}{2S^2} (a-S^2M)^2\} \mathrm{d} a = 1 $
+
+
+% We can get,
+% $$
+% 1/S_N = 1/S_0 + \beta = 1/\gamma^2 + 1/\sigma^2
+% $$
+
+
+\item (2 marks): Without explicitly using the sum and product rules, derive $p(\bm{y} | X, \sigma^2, \gamma^2)$, by considering 
+the properties of Gaussian distributions and finding expectations and covariances.  This expression should look different
+than your answer to the previous question.  Comment on the differences in computational complexity.  \textbf{Bonus (1 mark)}:
+show that both representations in (d) and (e) are mathematically equivalent.
+
+We have already known that a is a Gaussian distribution, aX is a n-dimensional multivariate gaussian distribution ($X = \{x_i\}_{i=1}^{n}$). 
+
+$$
+\begin{aligned}
+f_{i}&=f\left(\mathbf{x}_{i}\right)\\
+&=ax_i+\varepsilon
+\end{aligned}
+$$
+
+% $$
+% \mathrm{K}_{X_{i} X_{j}}=\operatorname{cov}\left[X_{i}, X_{j}\right]=\mathrm{E}\left[\left(X_{i}-\mathrm{E}\left[X_{i}\right]\right)\left(X_{j}-\mathrm{E}\left[X_{j}\right]\right)\right]
+% $$
+
+$$
+aX=\left[\begin{array}{c}
+a\mathbf{x}_{1} \\
+\vdots \\
+a\mathbf{x}_{n} 
+\end{array}\right] \sim \mathcal{N}\left(\mathbf{0},K(aX,aX)\right)
+$$
+
+$$
+aX=\left[\begin{array}{c}
+a\mathbf{x}_{1} \\
+\vdots \\
+a\mathbf{x}_{n} 
+\end{array}\right] \sim \mathcal{N}\left(\mathbf{0},\gamma^2K(X,X)\right)
+$$
+
+
+
+$$
+aX=\left[\begin{array}{c}
+a\mathbf{x}_{1} \\
+\vdots \\
+a\mathbf{x}_{n} 
+\end{array}\right] \sim \mathcal{N}\left(\mathbf{0},\left[\begin{array}{ccc}
+k\left(a\mathbf{x}_{1}, a\mathbf{x}_{1}\right) & \ldots & k\left(a\mathbf{x}_{1}, a\mathbf{x}_{n}\right) \\
+\vdots & \ddots & \vdots \\
+k\left(a\mathbf{x}_{n}, a\mathbf{x}_{1}\right) & \ldots & k\left(a\mathbf{x}_{n}, a\mathbf{x}_{n}\right)
+\end{array}\right]\right)
+$$
+
+$$
+\mathrm{K}_{ax_{i} ax_{j}}=\operatorname{cov}\left[ax_{i}, ax_{j}\right]=\mathrm{E}\left[\left(ax_{i}-0\right)\left(ax_{j}-0]\right)\right] = x_i x_j \mathrm{E}\left[a^2\right] = \gamma^2 x_i x_j
+$$
+
+
+
+$$
+aX=\left[\begin{array}{c}
+    a\mathbf{x}_{1} \\
+    \vdots \\
+    a\mathbf{x}_{n} 
+\end{array}\right] \sim \mathcal{N}\left(\mathbf{0},\left[\begin{array}{ccc}
+(\gamma^2 x_1 x_1 ) & \ldots &(\gamma^2 x_1 x_n ) \\
+\vdots & \ddots & \vdots \\
+(\gamma^2 x_n x_1 ) & \ldots & (\gamma^2 x_n x_n ))
+\end{array}\right]\right)
+$$
+
+$$
+aX=\left[\begin{array}{c}
+    a\mathbf{x}_{1} \\
+    \vdots \\
+    a\mathbf{x}_{n} 
+\end{array}\right] \sim \mathcal{N}\left(\mathbf{0},\gamma^2\left[\begin{array}{ccc}
+( x_1 x_1 ) & \ldots &(x_1 x_n ) \\
+\vdots & \ddots & \vdots \\
+( x_n x_1 ) & \ldots & ( x_n x_n ))
+\end{array}\right]\right)
+$$
+
+
+
+$$
+\begin{aligned}
+\mathbf{y} = f = aX + \varepsilon \\
+\end{aligned}
+$$
+
+
+$$
+\begin{aligned}
+\mathbf{y}
+&\sim  \mathcal{N}\left(\mathbf{0}, \gamma^2 K(\mathbf{X}, \mathbf{X})+\sigma^2 \boldsymbol{I}\right)
+\end{aligned}
+$$
+
+K(X,X) is the covariance matrix.
+
+
+We have $\mu = 0$ and $$\boldsymbol{\Sigma} = \gamma^2 K(\mathbf{X}, \mathbf{X})+\sigma^2 \boldsymbol{I} ,$$
+
+$$
+\begin{aligned}
+p(\bm{y} | X, \sigma^2, \gamma^2)&=\frac{\exp \left(-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{x}-\boldsymbol{\mu})\right)}{\sqrt{(2 \pi)^{n}|\mathbf{\Sigma}|}} \\
+&= \frac{\exp \left(-\frac{1}{2}(\mathbf{x})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{x})\right)}{\sqrt{(2 \pi)^{n}|\mathbf{\Sigma}|}}.
+\end{aligned}
+$$
+
+This method is more efficient than the previous one by using gaussian distribution properties.
+
+\textbf{Mathematically quivalence bonus}:
+
+From (d), we have  $ -\frac{1}{2S^2}  =  -( \frac{\sum_{i=1}^{n}{x_i^2}}{2\sigma^2} + \frac{1}{2\gamma^2}) $, M = $\frac{\sum_{i=1}^{n} x_i y_i}{\sigma^2}$.
+
+
+$$
+\begin{aligned}
+p(\mathbf{y} \mid X, \sigma^2, \gamma^2)
+&= \sqrt{ S^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{\gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+\end{aligned}
+$$
+
+$$
+\frac{1}{S^2} = \frac{\sum_{i=1}^{n}{x_i^2}}{\sigma^2} + \frac{1}{\gamma^2}
+$$
+
+
+Futhre more, we have 
+$$
+\begin{aligned}
+&\frac{S^{2} M^{2}}{2}-\sum_{i=1}^{n} \frac{y_{i}^{2}}{2 \sigma^{2}} \\
+&=\frac{S^{2}}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} x_{i} x_{j} y_{i} y_{j}-\sum_{i=1}^{n} \frac{y_{i}^{2}}{2 \sigma^{2}} \\
+&=\frac{1}{2} \mathbf{y}^{\mathrm{T}} \Sigma_{Y}^{-1} \mathbf{y}
+\end{aligned}
+$$
+where,
+
+$$
+\Sigma_{Y}^{-1}:=S^{2} \cdot\left[\begin{array}{c}
+x_{1} x_{1}, x_{1} x_{2}, \ldots, x_{1} x_{n} \\
+x_{2} x_{1}, x_{2} x_{2}, \ldots, x_{2} x_{n} \\
+\vdots \\
+x_{n} x_{1}, x_{n} x_{2}, \ldots, x_{n} x_{n}
+\end{array}\right]-\frac{1}{\sigma^{2}} \mathbf{I}_{n}
+$$
+
+$$
+\begin{gathered}
+p\left(\mathbf{y} \mid X, \sigma^{2}, \gamma^{2}\right)=\mathcal{N}\left(\mathbf{0}_{n}, \Sigma_{Y}\right) \\
+\left|\Sigma_{Y}\right|=\frac{\sigma^{2} * \gamma^{2}}{S^{2}}
+\end{gathered}
+$$
+
+On the other hand, we have (e) solution,
+$$
+p\left(\mathbf{y} \mid X, \sigma^{2}, \gamma^{2}\right)=\mathcal{N}\left(\mathbf{0}_{n}, \Sigma_{Y}^{\prime}\right)
+$$
+
+
+For ease of notation, define $\textbf{x}=(x_1,x_2,\dots,x_n)^{\mathrm{T}}$, then we have:
+$$
+\begin{aligned}
+\frac{1}{S^2} &= \frac{1}{\sigma^2} \textbf{x}^{\mathrm{T}}\textbf{x}+\frac{1}{\gamma^2}\label{eq:S}\\
+\Sigma^{-1}_Y &= -\frac{S^2}{\sigma^4} \textbf{x}\textbf{x}^{\mathrm{T}}+\frac{1}{\sigma^2}\textbf{I}_n\\
+\Sigma'_Y &= \gamma^2 \textbf{x}\textbf{x}^{\mathrm{T}} + \sigma^2\textbf{I}_n
+\end{aligned}
+$$
+Then, we have
+
+$$
+\begin{aligned}
+&\Sigma^{-1}_Y \cdot \Sigma'_Y \\
+&= ( -\frac{S^2}{\sigma^4} \textbf{x}\textbf{x}^{\mathrm{T}}+\frac{1}{\sigma^2}\textbf{I}_n)(\gamma^2 \textbf{x}\textbf{x}^{\mathrm{T}} + \sigma^2\textbf{I}_n)\\
+& = -\frac{S^2\gamma^2}{\sigma^4}\textbf{x}\textbf{x}^{\mathrm{T}}\textbf{x}\textbf{x}^{\mathrm{T}} + \frac{\gamma^2}{\sigma^2}\textbf{x}\textbf{x}^{\mathrm{T}} -\frac{S^2}{\sigma^2}\textbf{x}\textbf{x}^{\mathrm{T}} + \textbf{I}_n\\
+& = -\frac{S^2\gamma^2}{\sigma^4}\textbf{x}(\frac{\sigma^2}{S^2}-\frac{\sigma^2}{\gamma^2})\textbf{x}^{\mathrm{T}} + \frac{\gamma^2}{\sigma^2}\textbf{x}\textbf{x}^{\mathrm{T}} -\frac{S^2}{\sigma^2}\textbf{x}\textbf{x}^{\mathrm{T}} + \textbf{I}_n\label{eq:pf1}\\
+& = -(\frac{\gamma^2}{\sigma^2}-\frac{S^2}{\sigma^2})\textbf{x}\textbf{x}^{\mathrm{T}}+ \frac{\gamma^2}{\sigma^2}\textbf{x}\textbf{x}^{\mathrm{T}} -\frac{S^2}{\sigma^2}\textbf{x}\textbf{x}^{\mathrm{T}} + \textbf{I}_n\\
+& = \textbf{I}_n
+\end{aligned}
+$$
+
+We have $\Sigma'_Y = \Sigma_Y$.
+
+Thus, the solution from (d) and (e) are equivalent.
+
+
+% $$
+% \begin{aligned}
+% p(\mathbf{y} \mid X, \sigma^2, \gamma^2)
+% &= \sqrt{2\pi S^2} \frac{1}{\sqrt{2\pi \sigma^2}} \frac{1}{\sqrt{2\pi \gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+% &= \sqrt{2\pi S^2} \frac{1}{\sqrt{2\pi \sigma^2}} \frac{1}{\sqrt{2\pi \gamma^2}} * \exp \{\frac{ (\sum_{i=1}^{n} {x_i y_i})^2}{(\sum_{i=1}^{n} {x_i}^2) ^2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+% &= \sqrt{2\pi S^2} \frac{1}{\sqrt{2\pi \sigma^2}} \frac{1}{\sqrt{2\pi \gamma^2}} * \exp \{\frac{ (\sum_{i=1}^{n} {x_i y_i})^2}{(\sum_{i=1}^{n} {x_i}^2) ^2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+% \end{aligned}
+% $$
+
+
+
+
+% , while $\mu = 0$ and 
+
+% $$\Sigma = \left[
+%     \begin{array}{ccc}
+%     (a^2 x_1 x_1 ) & \ldots &(a^2 x_1 x_n ) \\
+%     \vdots & \ddots & \vdots \\
+%     (a^2 x_n x_1 ) & \ldots & (a^2 x_n x_n ))
+%     \end{array}\right]
+% $$
+
+% $p(\bm{y} | X, \sigma^2, \gamma^2)$ = 
+
+
+
+
+\item (2 marks): What are the maximum marginal likelihood solutions $\hat{\sigma}^2 =  \text{argmax}_{\sigma^2} p(\bm{y} | X, \sigma^2, \gamma^2)$ and 
+$\hat{\gamma}^2 =  \text{argmax}_{\gamma^2} p(\bm{y} | X, \sigma^2, \gamma^2)$?
+
+$$
+\begin{aligned}
+p(\mathbf{y} \mid X, \sigma^2, \gamma^2)
+&= \sqrt{ S^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{\gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\ln p(\mathbf{y} \mid X, \sigma^2, \gamma^2)
+&= - \frac{n}{2} \ln(2\pi \sigma^2) + \frac{1}{2} ln \frac{S^2}{\gamma^2} + \frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2} \\
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\frac{\partial{\ln p(\mathbf{y} \mid X, \sigma^2, \gamma^2)}}{\partial{\sigma^2}} = 0
+\end{aligned}
+$$
+
+% $$
+% w_{M L}=\left(\Phi^{T} \boldsymbol{\Phi}\right)^{-1} \boldsymbol{\Phi}^{T} \boldsymbol{t}
+% $$
+
+% $$
+% \Phi=\left(\begin{array}{cccc}
+% \phi_{0}\left(x_{1}\right) & \phi_{1}\left(x_{1}\right) & \cdots & \phi_{M-1}\left(x_{1}\right) \\
+% \phi_{0}\left(x_{2}\right) & \phi_{1}\left(x_{2}\right) & \cdots & \phi_{M-1}\left(x_{2}\right) \\
+% \vdots & \vdots & \ddots & \vdots \\
+% \phi_{0}\left(x_{N}\right) & \phi_{1}\left(x_{N}\right) & \cdots & \phi_{M-1}\left(x_{N}\right)
+% \end{array}\right)
+% $$
+
+$$
+\mathbf{w}_{M L} = \frac{1}{n}\sum_{i=1}^{n}\left\{ \frac{y_i}{x_i} \right\}
+$$
+$$
+\hat{\sigma^2}=\frac{1}{n} \sum_{i=1}^{n}\left\{y_{n}-\mathbf{w}_{M L} x_{n})\right\}^{2}
+$$
+
+% $$
+% \begin{aligned}
+%  - \frac{n}{2} * \frac{1}{\sigma^2} + \frac{1}{2}(\frac{\sum_{i=1}^{n}{x_i^2}}{\sigma^2} + \frac{1}{\gamma^2}) + \frac{M^2}{2}+\frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^4} = 0
+% \end{aligned}
+% $$
+
+
+
+$$
+\begin{aligned}
+\frac{\partial{\ln p(\mathbf{y} \mid X, \sigma^2, \gamma^2)}}{\partial{\gamma^2}} = 0
+\end{aligned}
+$$
+
+$$
+\frac{1}{\hat{\gamma}^2} = \frac{\sum_{i=1}^{n}{x_i^2}}{\sigma^2} + \frac{1}{\gamma^2}
+$$
+
+% $$
+% \mathbf{m}_{N}=\beta \mathbf{A}^{-1} \boldsymbol{\Phi}^{\mathrm{T}} \mathbf{t}
+% $$
+
+% $$
+% \sigma^2=\frac{1}{n-\gamma} \sum_{i=1}^{n}\left\{y_{i}-\mathbf{m}_{n}^{\mathrm{T}} \boldsymbol{\phi}\left(\mathbf{x}_{n}\right)\right\}^{2}
+% $$
+
+
+% $$
+% \begin{aligned}
+% p(\bm{y} | X, \sigma^2, \gamma^2)
+% &= \frac{\exp \left(-\frac{1}{2}(\mathbf{x})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{x})\right)}{\sqrt{(2 \pi)^{n}|\mathbf{\Sigma}|}}
+% &= \mathcal{N}\left(\mathbf{y} \mid \mathbf \boldsymbol{\mu}, \Sigma\right)
+% &= \mathcal{N}\left(\mathbf{y} \mid \mathbf{0}_{n}, \Sigma\right)
+% \end{aligned}
+% $$
+
+
+% For $\sigma^2$,
+% $$
+% \frac{\partial}{\partial \boldsymbol{\mu}} \ln p(y \mid \boldsymbol{\mu}, \boldsymbol{\Sigma})=\sum_{n=1}^{n} \boldsymbol{\Sigma}^{-1}\left(\mathbf{y}_{\mathbf{n}}-\boldsymbol{\mu}\right)
+% $$
+
+
+% We let above equation be zero, and we have,
+% $$
+% \frac{\partial}{\partial \boldsymbol{\mu}} \ln p(y \mid \boldsymbol{\mu}, \boldsymbol{\Sigma})=\sum_{n=1}^{n} \boldsymbol{\Sigma}^{-1}\left(\mathbf{y}_{\mathbf{n}}-\boldsymbol{\mu}\right) = 0
+% $$
+
+
+% $$
+% \frac{\partial{p(\bm{y} | X, \sigma^2, \gamma^2)}}{\partial{\sigma^2}} = 
+% $$
+
+% For $\gamma^2$,
+% $$
+% \frac{\partial}{\partial x} \ln |\mathbf{\Sigma}|=\left(\boldsymbol{\Sigma}^{-1}\right)^{T}=\mathbf{\Sigma}^{-1}
+% $$
+
+
+
+
+% $$
+% \frac{\partial{p(\bm{y} | X, \sigma^2, \gamma^2)}}{\partial{\gamma^2}} = 
+% $$
+
+
+
+
+\item (2 marks): Derive the predictive distribution for $p( y_* | {x}_*, \hat{\sigma}^2, \hat{\gamma}^2, \mathcal{D})$ for any arbitrary test point $x_*$,
+where $y_* = y(x_*)$.
+
+Once we have the posterior distribution, we can use it to compute the predictive distribution.
+
+We have,
+
+$ p( \epsilon \mid \sigma^2, D) \sim \mathcal{N}\left( \epsilon \mid 0, \hat{\sigma}^2 \right)$ \\
+$ p( a \mid \gamma^2, D) \sim    \mathcal{N}\left( a \mid 0, \hat{\gamma}^2 \right)$
+
+Based on the gaussian distribution, we can compute the predictive distribution property,
+$$
+p(y_* \mid x_*, \hat{\sigma}^2, \hat{\gamma}^2, \mathcal{D})=\mathcal{N}\left( y_* \mid 0, \hat{\sigma^2} + x_*^2\hat{\gamma}^2\right)
+$$
+
+% $$
+% \sigma_{N}^{2}(\mathbf{x})=\frac{1}{\beta}+\phi(\mathbf{x})^{\mathrm{T}} \mathbf{S}_{N} \boldsymbol{\phi}(\mathbf{x})
+% $$
+
+% $$
+% p(y \mid a, \beta)=\mathcal{N}\left( y \mid ax, \beta^{-1}\right)
+% $$
+
+% $$
+% p(a \mid \mathbf{y}, \alpha, \beta)=\mathscr{N}\left(a \mid \boldsymbol{m}_{\boldsymbol{N}}, \boldsymbol{S}_{\boldsymbol{N}}\right)
+% $$
+
+\item (2 marks): For the dataset $\mathcal{D}$ in (b), give the predictive mean $\mathbb{E}[y_* | x_*, \hat{\sigma}^2, \hat{\gamma}^2, \mathcal{D}]$ and predictive variance $\text{var}(y_* |  x_*, \hat{\sigma}^2, \hat{\gamma}^2, \mathcal{D})$ for $x_* = 14$.
+
+$$
+p(y_* \mid x_*, \hat{\sigma}^2, \hat{\gamma}^2, \mathcal{D})=\mathcal{N}\left( y_* \mid 0, \hat{\sigma^2} + x_*^2\hat{\gamma}^2\right)
+$$
+
+$$
+\mathbf{w}_{M L} = 5.9609
+$$
+
+$$
+\hat{\sigma^2}=\frac{1}{n} \sum_{i=1}^{n}\left\{y_{n}-\mathbf{w}_{M L} x_{n})\right\}^{2} = 432.3076
+$$
+
+$\mathbb{E}[y_* | x_*, \hat{\sigma}^2, \hat{\gamma}^2, \mathcal{D}] = 0 $
+
+
+$$
+\frac{1}{\hat{\gamma}^2} = \frac{\sum_{i=1}^{n}{x_i^2}}{\sigma^2} + \frac{1}{\gamma^2} 
+$$
+
+$\text{var}(y_* |  x_*, \hat{\sigma}^2, \hat{\gamma}^2, \mathcal{D}) = \hat{\sigma^2} +  x_*^2\hat{\gamma}^2 = 432.3076 + \frac{196}{\frac{371.0}{\sigma^2} + \frac{1}{\gamma^2}}$
+
+\item (2 marks): Suppose we replace $x$ in Eq.~\eqref{eqn: first} with $g(x,w)$, where $g$ is a non-linear function parametrized by $w$,
+and $w \sim \mathcal{N}(0,\lambda^2)$: e.g., $g(x,w) = \cos (w x)$.  Can you write down an analytic expression for $p(\bm{y} | w, X, \sigma^2, \gamma^2)$?  How about $p(\bm{y} | X, \sigma^2, \gamma^2, \lambda^2)$?  Justify your answers.
+
+\begin{align}
+    y = a g(x,w) + \epsilon_x 
+\end{align}
+
+$$
+p(\mathbf{y} \mid w,{X}, \sigma^2, \gamma^2)=\prod_{i=1}^{n} \mathcal{N}\left(y_{i} \mid {a} {x}_{i}, \sigma^2 \right)
+$$
+
+$$
+g(w,X)=\left[\begin{array}{c}
+g(\mathbf{x}_{1}, w) \\
+\vdots \\
+g(\mathbf{x}_{n}, w) 
+\end{array}\right] 
+$$
+
+w and x is independent, thus we can use g(w,X) to replace x in (d).
+$$
+\begin{aligned}
+p(\mathbf{y} \mid w, X, \sigma^2, \gamma^2) 
+&=p(\mathbf{y} \mid g(w,X), \sigma^2, \gamma^2) \\
+&= \sqrt{ S_g^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{\gamma^2}} * \exp \{\frac{S_g^2M_g^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+% &=\int p(\mathbf{y} \mid {a}, \sigma^2) p({a} \mid \gamma^2) \mathrm{d} a \\
+% &=\int \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{2\pi \gamma^2}} \exp\{\text{exponential term}\} \mathrm{d} a \\
+% &=\int \frac{1}{\sqrt{2\pi S^2}} \exp\{-\frac{1}{2S^2} (a-S^2M)\}  \sqrt{2\pi S^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{2\pi \gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\}\mathrm{d} a \\
+% &= \sqrt{2\pi S^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{2\pi \gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+% &= \sqrt{ S^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{\gamma^2}} * \exp \{\frac{S^2M^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\} \\
+\end{aligned}
+$$
+
+We let $ -\frac{1}{2S_g^2}  =  -( \frac{\sum_{i=1}^{n}{g(x_i,w)^2}}{2\sigma^2} + \frac{1}{2\gamma^2}) $, $M_g = \frac{\sum_{i=1}^{n} g(x_i,w) y_i}{\sigma^2}$
+
+
+$$
+\frac{1}{S_g^2} =  \frac{\sum_{i=1}^{n}{g(x_i,w)^2}}{\sigma^2} + \frac{1}{\gamma^2}
+$$
+
+
+$$
+\begin{aligned}
+p(\bm{y} | X, \sigma^2, \gamma^2, \lambda^2) 
+&=\int p(\mathbf{y} \mid w, X, \sigma^2, \gamma^2)  p({w} \mid \lambda^2) \mathrm{d} w \\
+&=\int \sqrt{ S_g^2} \frac{1}{(\sqrt{2\pi \sigma^2})^n} \frac{1}{\sqrt{\gamma^2}} * \exp \{\frac{S_g^2M_g^2}{2} - \frac{\sum_{i=1}^{n}{y_i^2}}{2\sigma^2}\}  p({w} \mid \lambda^2) \mathrm{d} w
+\end{aligned}
+$$
+
+Without furthre information of g(w, x), we can not get the analytic expression of $p(\bm{y} | X, \sigma^2, \gamma^2, \lambda^2)$ .
+
+\end{enumerate}
+
+% \vspace{5mm}
+% \textbf{Bonus question}:
+
+% \includegraphics[scale=0.5]{weighing.png}\\
+% You are given 12 balls, all equal in weight except for one that is either heavier or lighter. You are also given a two-pan balance to use. In each use of the balance you may put any number of the 12 balls on the left pan, and the same number on the right pan, and push a button to initiate the weighing; there are three possible outcomes: either the weights are equal, or the balls on the left are heavier, or the balls on the left are lighter. Your task is to design a strategy to determine which is the odd ball and whether it is heavier or lighter than the others in as few uses of the balance as possible.
+
+
+
+\end{enumerate}
+
+
+\end{document}
+

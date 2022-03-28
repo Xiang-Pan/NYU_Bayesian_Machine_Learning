@@ -1,0 +1,575 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath, amssymb, amsthm} % ams packages %amsfonts is loaded by amssymb
+\usepackage[all,warning]{onlyamsmath}
+\usepackage{graphics, graphicx} % graphics packages
+
+
+\usepackage[margin=1in]{geometry} % more reasonable margins
+\usepackage{booktabs} % prettier tables
+\usepackage{units} % prettier fractions (?)
+
+% Small sections of multiple columns
+\usepackage{multicol}
+
+\usepackage{bm}
+\usepackage{url}
+\usepackage{pdfpages}
+
+\usepackage{natbib}
+
+\usepackage{tikz} % make graphics in latex
+\usetikzlibrary{shapes,decorations}
+\usetikzlibrary{arrows}
+\usepackage{pgfplots} % to make plots in latex
+\pgfplotsset{compat=newest} % compatibility issue
+\usepackage{enumitem, comment}
+
+% formatting
+\usepackage{fancyhdr} % for changing headers and footers
+\usepackage{url} % url 
+\usepackage[normalem]{ulem}
+\usepackage{color} % colored text + names %deprecated?
+
+
+
+% hyperlink in the document
+\usepackage{hyperref} % must be the last package loaded
+
+\usepackage{comment}
+
+\usepackage{parskip}
+\usepackage{tikz}
+\usetikzlibrary{fit,positioning}
+
+% notations
+\newcommand{\one}{\ensuremath{\mathbf{1}}}
+\newcommand{\zero}{\ensuremath{\mathbf{0}}}
+\newcommand{\prob}{\ensuremath{\mathbf{P}}}
+\newcommand{\expec}{\ensuremath{\mathbf{E}}}
+\newcommand{\ind}{\ensuremath{\mathbf{I}}}
+\newcommand{\reals}{\ensuremath{\mathbb{R}}}
+\newcommand{\naturals}{\ensuremath{\mathbb{N}}}
+\newcommand{\defeq}{\ensuremath{\triangleq}}
+\newcommand{\sP}{\ensuremath{\mathsf{P}}}
+\newcommand{\sQ}{\ensuremath{\mathsf{Q}}}
+\newcommand{\sE}{\ensuremath{\mathsf{E}}}
+
+
+\newcommand{\mbf}[1]{{\boldsymbol{\mathbf{#1}}}}
+\renewcommand{\bm}{\mbf}
+
+
+% environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+
+
+
+\title{\vspace{-20mm} Bayesian Machine Learning}
+\date{}
+\author{
+\textbf{Homework 2}  \\ \textbf{Due: Thursday, October 7, 11:59 pm ET}}
+\begin{document}
+\maketitle
+
+\
+
+\textbf{Model Comparison, Occam's Razor, and the Laplace Approximation} \\
+(49 marks) \\ \\
+
+The \emph{evidence} $p(\mathcal{D}|\mathcal{M})$, also known as the \emph{marginal likelihood}, is the probability that if we were to randomly sample parameters $\bm{\theta}$ from $\mathcal{M}$ that we would create dataset $\mathcal{D}$: 
+\begin{align}
+p(\mathcal{D} | \mathcal{M}) = \int p(\mathcal{D} | \mathcal{M}, \bm{\theta}) p(\bm{\theta} | \mathcal{M}) d\bm{\theta}
+\label{eqn: evidence}
+\end{align}
+Simple models $\mathcal{M}$ can only generate a small number
+of datasets, but because the marginal likelihood must normalise, it will generate these datasets with
+high probability. Complex models can generate a wide range of datasets, but each with typically low
+probability. For a given dataset, the marginal likelihood will favour a model of more appropriate
+complexity, as illustrated in Figure~\ref{fig: occam}.
+
+
+\begin{enumerate}
+\item (12 marks): Consider the Bayesian linear regression model, 
+\begin{align}
+y &= \bm{w}^{\top} \bm{\phi}(\bm{x},\bm{z}) + \epsilon(\bm{x})   \\
+\epsilon(\bm{x}) &\sim \mathcal{N}(0,\sigma^2) \\
+p(\bm{w}) &= \mathcal{N}(0,\alpha^2 I) 
+\end{align}
+where the data $\mathcal{D}$ consist of $N$ input-output pairs, $\{\bm{x}_i, y_i\}_{i=1}^{N}$, $\bm{w}$ is a set of linear weights which have a Gaussian prior with zero mean and covariance $\alpha^2 I$, $\bm{z}$ is a set of deterministic parameters of the basis functions $\bm{\phi}$, and $\sigma^2$ is the variance of additive Gaussian noise.  Let 
+$\bm{y} = (y_1,\dots,y_N)^{\top}$ and $X = \{\bm{x}_i\}_{i=1}^{N}$.  
+\begin{enumerate}[label=(\alph*)]
+ \item (2 marks): Draw the directed graphical model corresponding to the joint distribution over all parameters. 
+\item (2 marks): Derive an expression for the log marginal likelihood $\log p(\bm{y} | \bm{z}, X, \alpha^2, \sigma^2)$ showing all relevant steps. 
+\item (8 marks): Derive expressions for the derivatives of this log marginal likelihood with respect to \emph{hyperparameters} $\bm{z}$, $\alpha^2$, and $\sigma^2$.  You can make reference to matrix derivative identities.
+\end{enumerate}
+
+
+
+\begin{figure}[t!]
+\centering
+\includegraphics[scale=0.45]{./figs/occambestnew}
+\caption{Bayesian Occam's Razor.  The marginal
+likelihood (evidence) vs. all possible datasets $\mathcal{D}$.  The vertical black line corresponds to an 
+example dataset $\mathcal{D}$.}
+\label{fig: occam}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+\includegraphics[scale=0.45]{./figs/posterior.png}
+\caption{The posterior $p(\theta|\mathcal{D},\mathcal{M})$ and prior $p(\theta | \mathcal{M})$ over parameters $\theta$ under model $\mathcal{M}$.  
+$\hat{\theta} = \text{argmax}_{\theta} 
+p(\theta|\mathcal{D},\mathcal{M})$. }
+\label{fig: posterior}
+\end{figure}
+
+
+(a)
+Refer to figure \ref{fig: graphical_model}.
+\begin{figure}[htp!]
+    \centering
+    \begin{tikzpicture}
+    \tikzstyle{main}=[circle, minimum size = 10mm, thick, draw =black!80, node distance = 16mm]
+    \tikzstyle{connect}=[-latex, thick]
+    \tikzstyle{box}=[rectangle, draw=black!100]
+      \node[main] (alpha) [label=right:$\alpha$] { };
+      \node[main] (w) [below=of alpha,label=below:$w$] { };
+
+      \node[main] (X) [right=of alpha,label=right:$\bm{X}$] { };
+      \node[main] (y) [below=of X,label=below:$\bm{y}$] { };
+      
+      
+      
+      \node[main] (sigma) [right=of X,label=right:$\sigma$] { };
+      \node[main] (epsilon) [below=of sigma,label=below:$\epsilon$] { };
+      
+    %   \node[main] (w) [right of alpha,label=right:$w$] { };
+    %   \node[main] (alpha) [label=right:$\alpha$] { };
+    %   \node[main] (theta) [right=of alpha,label=right:$\theta$] { };
+    %   \node[main] (z) [right=of theta,label=right:z] {};
+    %   \node[main] (beta) [above=of z,label=right:$\beta$] { };
+    %   \node[main, fill = black!10] (w) [right=of z,label=right:w] { };
+      \path (alpha) edge [connect] (w);
+      \path (w) edge [connect] (y);
+      \path (sigma) edge [connect] (epsilon);
+      \path (epsilon) edge [connect] (y);
+      \path (X) edge [connect] (y);
+    %   \path 
+    %         (theta) edge [connect] (z)
+    %         (z) edge [connect] (w)
+    %         (beta) edge [connect] (w);
+    %   \node[rectangle, inner sep=0mm, fit= (z) (w),label=right right:N, xshift=13mm] {};
+      \node[rectangle, inner sep=4.4mm,draw=black!100, fit= (X) (y)] {};
+    %   \node[rectangle, inner sep=4.6mm, fit= (z) (w),label=right right:M, xshift=12.5mm] {};
+    %   \node[rectangle, inner sep=9mm, draw=black!100, fit = (theta) (z) (w)] {};
+    \end{tikzpicture}
+    \caption{1.(a)}
+    \label{fig: graphical_model}
+\end{figure}
+
+
+(b)
+\begin{align} 
+    p(\bm{y}, \bm{z}, X, \alpha^2, \sigma^2) &= p(\bm{y} | \alpha^2, \sigma^2, X,\bm{z}) p(\alpha^2) p(\sigma ^2) p(X) \\
+    &= \sum_{i=1}^{n} p(y | \alpha^2, \sigma^2, x_i, z) p(\alpha^2) p(\sigma ^2)
+\end{align}
+
+% \begin{align}
+%     \log p(\bm{y} | \alpha^2, \sigma^2, X,\bm{z}) = \log p(\bm{y}, \bm{z}, X, \alpha^2, \sigma^2) - log p(\alpha^2) - log p(\sigma^2) \\
+% \end{align}
+
+We have,
+\begin{align}
+    y &= \bm{w}^{\top} \bm{\phi}(\bm{x},\bm{z}) + \epsilon(\bm{x})   
+\end{align}
+
+w is the weight vector follow the gaussian distribution, $\phi(x, z)$ is a deterministic matrix, thus $w^T \phi(x,z)$ is still gaussian, and $\epsilon(x)$ is a gaussian noise. y follows the gaussian distribution plus a gaussian distribution, thus y is a gaussian distribution. Trivially, the mean of $\bm{y}$ is 0 ($\mu=0$).
+
+i is the ith attribute of y.
+
+\begin{align}
+    cov(y_i, y_i) 
+    &= \expec ( \bm{w}^{\top} \bm{\phi}(\bm{x_i},\bm{z}) + \epsilon_i)  ( \bm{w}^{\top} \bm{\phi}(\bm{x_j},\bm{z}) + \epsilon_i) \\
+    &= \expec ( \bm{w}^{\top} \bm{\phi}(\bm{x_i},\bm{z}) \bm{w}^{\top} \bm{\phi}(\bm{x_i},\bm{z}) + \epsilon_i \epsilon_i) \\
+    &= \expec ( \bm{\phi}(\bm{x_i},\bm{z})^\top \bm{w}  \bm{w}^{\top} \bm{\phi}(\bm{x_i},\bm{z}) + \epsilon_i \epsilon_i) \\
+    &= \bm{\phi_i}^\top \expec (  \bm{w}  \bm{w}^{\top} ) \bm{\phi_i} + \sigma^2 \\
+    &= \bm{\phi_i}^\top \alpha^2 I  \bm{\phi_i} + \sigma^2
+\end{align}
+
+\begin{align}
+    cov(y_i, y_j) 
+    &= \expec ( \bm{w}^{\top} \bm{\phi}(\bm{x_i},\bm{z}) + \epsilon_i)  ( \bm{w}^{\top} \bm{\phi}(\bm{x_j},\bm{z}) + \epsilon_j) \\
+    &= \expec ( \bm{w}^{\top} \bm{\phi}(\bm{x_i},\bm{z}) \bm{w}^{\top} \bm{\phi}(\bm{x_j},\bm{z}) + \epsilon_i \epsilon_j) \\
+    &= \expec ( \bm{\phi}(\bm{x_i},\bm{z})^\top \bm{w}  \bm{w}^{\top} \bm{\phi}(\bm{x_j},\bm{z}) + \epsilon_i \epsilon_j) \\
+    &= \bm{\phi_i}^\top \expec (  \bm{w}  \bm{w}^{\top} ) \bm{\phi_j}  \\
+    &= \bm{\phi_i}^\top \alpha^2 I  \bm{\phi_j} 
+\end{align}
+
+
+We have every item in the covariance matrix of y.
+
+% \begin{equation}
+    % p(y \mid \mathbf{x}, \mathbf{t}, \alpha, \beta)=\mathcal{N}\left(t \mid \mathbf{m}_{N}^{\mathrm{T}} \boldsymbol{\phi}(\mathbf{x}), \sigma_{N}^{2}(\mathbf{x})\right)
+% \end{equation}
+
+$$
+\Sigma_{ij} = cov(y_i, y_j)
+$$
+
+
+\begin{equation}
+    K(\mathbf{X}, \mathbf{X}) = cov(\phi{(x,z)}, \phi{(x,z)})
+\end{equation}
+
+\begin{equation}
+    \boldsymbol{\Sigma}=\alpha^{2} K(\mathbf{X}, \mathbf{X})+\sigma^{2} \boldsymbol{I}
+\end{equation}
+
+% \begin{equation}
+    % f_{\mathbf{y}}\left(y_{1}, \ldots, y_{N}\right)=\frac{\exp \left(-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{x}-\boldsymbol{\mu})\right)}{\sqrt{(2 \pi)^{k}|\boldsymbol{\Sigma}|}}
+% \end{equation}
+
+\begin{align}
+    p(\bm{y} | \alpha^2, \sigma^2, X,\bm{z}) &=\frac{\exp \left(-\frac{1}{2}(\mathbf{y}-\boldsymbol{\mu})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{y}-\boldsymbol{\mu})\right)}{\sqrt{(2 \pi)^{N}|\boldsymbol{\Sigma}|}} \\
+    &=\frac{\exp \left(-\frac{1}{2}(\mathbf{y})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{y})\right)}{\sqrt{(2 \pi)^{N}|\boldsymbol{\Sigma}|}} 
+\end{align}
+
+\begin{align}
+    \ln p(\bm{y} | \alpha^2, \sigma^2, X,\bm{z}) 
+    &= \left(-\frac{1}{2}(\mathbf{y})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{y})\right) -  \ln {\sqrt{(2 \pi)^{N}|\boldsymbol{\Sigma}|}} \\
+    &= \left(-\frac{1}{2}(\mathbf{y})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{y})\right) -  \frac{1}{2} \ln {(2 \pi)^{N}|\boldsymbol{\Sigma}|} \\
+    &= \left(-\frac{1}{2}(\mathbf{y})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{y})\right) -  \frac{N}{2} \ln {(2 \pi)}  - \frac{1}{2} \ln {|\boldsymbol{\Sigma}|} 
+\end{align}
+
+
+Here we use ln for convenience, the only difference with log is the normalization const.
+
+(c)
+\begin{equation}
+    K(x,x) = \frac{\partial \mathbf{\Sigma}}{\partial \alpha^2} = cov(\phi{(x,z)}, \phi{(x,z)})
+\end{equation}
+
+\begin{align}
+    \frac{\partial{\ln p(\bm{y} |z ,\bm{X}, \alpha^2, \sigma^2)}}{\partial{\alpha^2}} 
+    &=  -\frac{1}{2} \frac{\partial{\mathbf{y}^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}\mathbf{y}}}{\partial{\alpha^2}} - \frac{1}{2}\frac{\partial{\ln |\Sigma|}}{\partial{\alpha^2}}\\
+    &=  -\frac{1}{2} \bm{y}^{\top} \frac{\partial{\Sigma^{-1}}}{\partial{\alpha^2}} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial \alpha^2}\right) \\
+    &=  \frac{1}{2} \bm{y}^{\top} \mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial \alpha^2} \mathbf{\Sigma}^{-1} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial \alpha^2}\right) \\
+    &=  \frac{1}{2} \bm{y}^{\top} \mathbf{\Sigma}^{-1} K(X,X) \mathbf{\Sigma}^{-1} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} K(X,X)\right)
+\end{align}
+
+similarly, we have 
+\begin{equation}
+    \frac{\partial \mathbf{\Sigma}}{\partial \sigma^2} = I
+\end{equation}
+
+\begin{align}
+    \frac{\partial{\ln p(\bm{y} |z ,\bm{x}, \sigma^2, \sigma^2)}}{\partial{\sigma^2}} 
+    &=  -\frac{1}{2} \frac{\partial{\mathbf{y}^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}\mathbf{y}}}{\partial{\sigma^2}} - \frac{1}{2}\frac{\partial{\ln |\Sigma|}}{\partial{\sigma^2}}\\
+    &=  -\frac{1}{2} \bm{y}^{\top} \frac{\partial{\Sigma^{-1}}}{\partial{\sigma^2}} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial \sigma^2}\right) \\
+    &=  \frac{1}{2} \bm{y}^{\top} \mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial \sigma^2} \mathbf{\Sigma}^{-1} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial \sigma^2}\right) \\
+    &=  \frac{1}{2} \bm{y}^{\top} \mathbf{\Sigma}^{-1} I \mathbf{\Sigma}^{-1} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} I\right)
+\end{align}
+
+In HW(1), If we define,
+\begin{equation}
+    \frac{1}{S^{2}}=\frac{K(\bm{x},\bm{x})}{\sigma^{2}}+\frac{1}{\alpha^{2}}
+\end{equation}
+
+% and 
+% \begin{equation}
+%     \mathrm{M}=\frac{\bm{y}^T\phi(\bm{x})}{\sigma^{2}}
+% \end{equation}
+
+\begin{equation}
+    \begin{aligned}
+    &\Sigma^{-1} \cdot \Sigma^{\prime} \\
+    &=\Sigma_{Y}^{-1} \cdot \Sigma_{Y}^{\prime} \\
+    &=\left(-\frac{S^{2}}{\sigma^{4}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}+\frac{1}{\sigma^{2}} \mathbf{I}_{n}\right)\left(\alpha^{2} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}+\sigma^{2} \mathbf{I}_{n}\right) \\
+    &=-\frac{S^{2} \alpha^{2}}{\sigma^{4}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}+\frac{\alpha^{2}}{\sigma^{2}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}-\frac{S^{2}}{\sigma^{2}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}+\mathbf{I}_{n} \\
+    &=-\frac{S^{2} \alpha^{2}}{\sigma^{4}} \mathbf{\phi(x)}\left(\frac{\sigma^{2}}{S^{2}}-\frac{\sigma^{2}}{\alpha^{2}}\right) \mathbf{\phi(x)}^{\mathrm{T}}+\frac{\alpha^{2}}{\sigma^{2}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}-\frac{S^{2}}{\sigma^{2}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}+\mathbf{I}_{n} \\
+    &=-\left(\frac{\alpha^{2}}{\sigma^{2}}-\frac{S^{2}}{\sigma^{2}}\right) \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}+\frac{\alpha^{2}}{\sigma^{2}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}-\frac{S^{2}}{\sigma^{2}} \mathbf{\phi(x)} \mathbf{\phi(x)}^{\mathrm{T}}+\mathbf{I}_{n} \\
+    &=\mathbf{I}_{n}
+    \end{aligned}
+\end{equation}
+
+Thus, we have a method to get the inverse of $\Sigma$.
+
+For z, we calculate each component of $z_i$, and later we concat those result into the one final vector.
+
+\begin{align}
+    zp = \frac{\partial{\ln p(\bm{y} |z ,\bm{X}, z_i, z_i)}}{\partial{z}}  
+\end{align}
+
+\begin{equation}
+    \frac{\partial \mathbf{\Sigma}}{\partial z_i} = \frac{\partial{K(X,X)}}{\partial{z_i}}
+\end{equation}
+
+\begin{align}
+    \frac{\partial{\ln p(\bm{y} |z ,\bm{x}, z_i, z_i)}}{\partial{z_i}} 
+    &=  -\frac{1}{2} \frac{\partial{\mathbf{y}^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}\mathbf{y}}}{\partial{z_i}} - \frac{1}{2}\frac{\partial{\ln |\Sigma|}}{\partial{z_i}}\\
+    &=  -\frac{1}{2} \bm{y}^{\top} \frac{\partial{\Sigma^{-1}}}{\partial{z_i}} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial z_i}\right) \\
+    &=  \frac{1}{2} \bm{y}^{\top} \mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial z_i} \mathbf{\Sigma}^{-1} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} \frac{\partial \mathbf{\Sigma}}{\partial z_i}\right) \\
+    &=  \frac{1}{2} \bm{y}^{\top} \mathbf{\Sigma}^{-1}\frac{\partial{K(\bm{x},\bm{x})}}{\partial{z_i}} \mathbf{\Sigma}^{-1} \bm{y} - \frac{1}{2} \operatorname{Tr}\left(\mathbf{\Sigma}^{-1} \frac{\partial{K(\bm{x},\bm{x})}}{\partial{z_i}}\right)
+\end{align}
+
+
+$
+    \frac{\partial{K(\bm{x},\bm{x})}}{\partial{z_i}}
+$ equals to each item in $K(\bm{x},\bm{x})$ derivative to each component $z_i$ in z, and form the new matrix.
+% We name the final result $zp$, zp is a n by n matrix,
+
+
+
+
+% \begin{align}
+%     zp_{j,k} =  vector(\frac{\partial{\ln p(\bm{y} |z ,\bm{X}, z_i, z_i)}}{\partial{z_i}} )
+% \end{align}
+
+
+
+% We name the 
+
+
+% \begin{equation}
+%     \frac{\partial \mathbf{\Sigma}}{\partial \sigma^2} = I
+% \end{equation}
+
+% \begin{equation}
+% m_{ij} = 
+% \end{equation}
+
+
+% \begin{equation}
+%     \frac{\partial}{\partial x}\left(\mathbf{A}^{-1}\right)=
+% \end{equation}
+
+% \begin{equation}
+%     \frac{\partial}{\partial x} \ln |\mathbf{A}|= \operatorname{Tr}\left(\mathbf{A}^{-1} \frac{\partial \mathbf{A}}{\partial x}\right)
+% \end{equation}
+
+% \begin{equation}
+%     \frac{d}{d t} \operatorname{det} A(t)=\operatorname{tr}\left(\operatorname{adj}(A(t)) \frac{d A(t)}{d t}\right)
+% \end{equation}
+
+% \begin{align}
+% \sigma^2 I + \alpha^2  M
+% \end{align}
+% \begin{align}
+% M_{ij} = \bm{\phi}_i^\top  \bm{\phi}_j
+% \end{align}
+
+
+\item (14 marks): The posterior $p(\bm{\theta} | \mathcal{M}, \mathcal{D}) \propto p(\mathcal{D} | \mathcal{M}, \bm{\theta}) p(\bm{\theta})$ will often be sharply peaked around its maximum value, as in Figure \ref{fig: posterior}.  The evidence in Eq.~\eqref{eqn: evidence} can thus be approximated by its height times its width $\sigma_{\theta | \mathcal{D}}$:
+\begin{align}
+\overbrace{p(\mathcal{D} | \mathcal{M})}^{\text{evidence}} \approx \overbrace{p(\mathcal{D} | \hat{\bm{\theta}}, \mathcal{M})}^{\text{data fit}} \overbrace{p(\hat{\bm{\theta}} | \mathcal{M}) \sigma_{\theta | \mathcal{D}}}^{\text{Occam factor}}
+\end{align}
+The evidence thus naturally compartmentalizes into data fit and Occam factor terms.  Suppose for simplicity that the prior is uniform on a large interval such that $p(\hat{\bm{\theta}} | \mathcal{M}) = 1/\sigma_{\theta}$.  The Occam's 
+factor then becomes $\frac{\sigma_{\theta|\mathcal{D}}}{\sigma_{\theta}}$. 
+\begin{enumerate}[label=(\alph*)]
+\item (2 marks): Provide an interpretation of the Occam's factor $\frac{\sigma_{\theta|\mathcal{D}}}{\sigma_{\theta}}$, wrt Figure \ref{fig: occam}.
+\item (4 marks): Show that if we use Laplace's method to approximate the posterior $p(\bm{\theta} | \mathcal{M}, \mathcal{D})$ 
+as a Gaussian, then the Occam's factor becomes 
+$p(\hat{\bm{\theta}} | \mathcal{M}) \text{det}(\frac{A}{2pi})^{-1/2}$ where $A = -\nabla \nabla \log p(\bm{\theta} | \mathcal{D},\mathcal{M})$.  Use this expression to interpret each of the terms in the log marginal likelihood you derived for question 1(b).
+\item (6 marks): Derive an approximation for the log evidence $\log p(D | \mathcal{M})$ assuming a broad Gaussian prior distribution and iid observations, strictly in terms of the number of datapoints $N$, the number of parameters $m$ (dimensionality of $\bm{\theta}$), and 
+$\log p(D | \hat{\bm{\theta}})$.  Show all of your work.
+\item (2 marks): Relate the Hessian $A$ to the covariance matrix of a Gaussian prior over parameters.
+\end{enumerate}
+
+
+(a)
+Occam factor is equal to the ratio of the posterior accessible volume of models' parameter space to the prior accessible volume. More specifically, it can represent the probability of some specific parameters times the probability of generate dataset given that parameters. 
+
+For the uniform simplification in the figure, the Occam becomes the ratio of posterior model parameter space over prior model parameter space.
+
+Simple model will get a small shrink of parameter space, thus it will have a large occam factor.
+
+Complex model will get a large shrink, thus it will have a small occam factor.
+
+(b)
+\begin{equation}
+    P\left(\theta \mid M, D\right) \propto P\left(D \mid \theta, M\right) P\left(\theta \mid M\right)
+\end{equation}
+
+We name $Z(\theta) = P\left(\theta \mid M, D\right) $, which follows the gaussian format. We Taylor-expand the logarithm of $Z(\theta)$ around the peak:
+\begin{equation}
+    \ln Z^{*}(\theta) \simeq \ln Z^{*}(\hat{\theta{}})-\frac{1}{2}\left(\theta - \hat{\theta}\right)^{\top} \mathbf{A}\left(\theta - \hat{\theta}\right)+\cdots
+\end{equation}
+
+
+
+Thus we have,
+
+\begin{align}
+    P\left(\theta \mid M, D\right) &= Z(\theta) 
+\end{align}
+\begin{align}
+    P(D|M) = \text{normalization-term} &=Z^{*}\left(\hat{\theta} \right) \frac{1}{\sqrt
+    {\operatorname{det} \frac{1}{2 \pi} \mathbf{A}}}\\
+    &=Z^{*}\left(\hat{\theta} \right) \sqrt{\frac{(2 \pi)^{N}}{\operatorname{det} \mathbf{A}}} \\
+    &=P\left(\hat{\theta} \mid M, D\right) \sqrt{\frac{(2 \pi)^{N}}{\operatorname{det} \mathbf{A}}}
+\end{align}
+
+
+\begin{align}
+    evidence = \text{normalization-term} &=  P(\hat{\theta} \mid M, D) \text{det}(\frac{A}{2 \pi})^{-1/2} \\
+    &\propto P\left(D \mid \hat{\theta}, M\right) P\left(\hat{\theta} \mid M\right) \text{det}(\frac{A}{2 \pi})^{-1/2}
+\end{align}
+
+Then occam' factor is $P\left(\hat{\theta} \mid M\right) \text{det}(\frac{A}{2 \pi})^{-1/2}$
+% is gaussi
+
+% \begin{equation}
+%     P\left(\mathbf{\theta} \mid D, M\right) \simeq P\left(\mathbf{w}_{\mathrm{MP}} \mid D, \mathcal{H}_{i}\right) \exp \left(-1 / 2 \Delta \mathbf{w}^{\top} \mathbf{A} \Delta \mathbf{w}\right)
+%     \end{equation}
+% \begin{equation}
+%     \begin{gathered}
+%     P\left(D \mid M \right) \simeq P\left(D \mid \hat{\bm{\theta}}, M\right) \times P\left(\hat{\bm{\theta}} \mid M\right) \operatorname{det}^{-\frac{1}{2}}(\mathbf{A} / 2 \pi) \\
+%     \mathbf{A}=-\nabla \nabla \ln P\left(\mathbf{\bm{\theta}} \mid D, M\right)
+%     \end{gathered}
+% \end{equation}
+% \log p(\bm{\theta} | \mathcal{D},\mathcal{M})$
+
+(c)
+if the prior is gaussian, the posterior is gaussian.
+
+
+\begin{align}
+\ln p(D|M) &\approx \ln p(D|\hat{\theta} ,M) + \ln P\left(\hat{\theta} \mid M\right) \text{det}(\frac{A}{2 \pi})^{-1/2} 
+% &= -\frac{1}{2}(\mathbf{y})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{y}) -  \frac{N}{2} \ln {(2 \pi)}  - \frac{1}{2} \ln {|\boldsymbol{\Sigma}|
+\end{align}
+
+
+\begin{equation}
+    \ln p(D \mid M) \approx \ln p(D \mid \hat{\theta}, \mathcal{M})+\frac{m}{2} \ln 2 \pi+\ln p(\hat{\theta} \mid \mathcal{M})-\frac{1}{2} \ln \operatorname{det}(A)
+\end{equation}
+
+We can use Fisher Information Matrix F to decompose A.
+\begin{equation}
+    \ln p(D \mid M) \approx \ln p(D \mid \hat{\theta}, \mathcal{M})+\frac{m}{2} \ln 2 \pi+\ln p(\hat{\theta} \mid \mathcal{M})-\frac{1}{2} \ln \operatorname{det}(N F)
+\end{equation}
+
+\begin{equation}
+    \ln p(D \mid M) \approx \ln p(D \mid \hat{\theta}, \mathcal{M})+\frac{m}{2} \ln 2 \pi+\ln p(\hat{\theta} \mid \mathcal{M})-\frac{1}{2} \ln \operatorname{det}(N F)
+\end{equation}
+
+\begin{equation}
+    \ln p(D \mid M) \approx \ln p(D \mid \hat{\theta}, \mathcal{M})+\frac{m}{2} \ln 2 \pi+\ln p(\hat{\theta} \mid \mathcal{M})-\frac{1}{2} \ln N^ m \operatorname{det}(F)
+\end{equation}
+
+\begin{equation}
+    \ln p(D \mid M) \approx \ln p(D \mid \hat{\theta}, \mathcal{M})+\frac{m}{2} \ln 2 \pi+\ln p(\hat{\theta} \mid \mathcal{M}) -\frac{m}{2} \ln N - \frac{1}{2} \ln  \operatorname{det}(F)
+\end{equation}
+
+With the increasing size N,
+$\ln p(\hat{\theta} \mid \mathcal{M})$ and other terms is relatively samll.
+\begin{equation}
+    \ln p(D \mid M) \approx \ln p(D \mid \hat{\theta}, \mathcal{M})-\frac{m}{2} \ln N 
+\end{equation}
+% \begin{align}
+
+% \end{align}
+
+
+
+(d)
+We already know that the target function is gaussian, thus Hessian A is equal to the inverse of covariance matrix.
+
+\begin{equation}
+    p(\boldsymbol{\theta})=(2 \pi)^{-\frac{N_{\theta}}{2}}\left|\boldsymbol{\Sigma}_{\boldsymbol{\theta}}\right|^{-\frac{1}{2}} \exp \left[-\frac{1}{2}\left(\boldsymbol{\theta}-\boldsymbol{\theta}^{\star}\right)^{T} \boldsymbol{\Sigma}_{\boldsymbol{\theta}}^{-1}\left(\boldsymbol{\theta}-\boldsymbol{\theta}^{\star}\right)\right]
+\end{equation}
+
+\begin{equation}
+    J(\boldsymbol{\theta}) \equiv-\ln p(\boldsymbol{\theta})=\frac{N_{\boldsymbol{\theta}}}{2} \ln 2 \pi+\frac{1}{2} \ln \left|\boldsymbol{\Sigma}_{\boldsymbol{\theta}}\right|+\frac{1}{2}\left(\boldsymbol{\theta}-\boldsymbol{\theta}^{\star}\right)^{T} \boldsymbol{\Sigma}_{\boldsymbol{\theta}}^{-1}\left(\boldsymbol{\theta}-\boldsymbol{\theta}^{\star}\right)
+\end{equation}
+
+\begin{equation}
+    \mathcal{H}^{\left(l, l^{\prime}\right)}\left(\boldsymbol{\theta}^{\star}\right)=\left.\frac{\partial^{2} J(\boldsymbol{\theta})}{\partial \theta_{l} \partial \theta_{l^{\prime}}}\right|_{\boldsymbol{\theta}=\boldsymbol{\theta}^{\star}}=\left(\boldsymbol{\Sigma}_{\boldsymbol{\theta}}^{-1}\right)^{\left(l, l^{\prime}\right)}
+\end{equation}
+
+
+
+\item (33 marks): Load the datasets $\mathcal{D}_1$ and $\mathcal{D}_2$ respectively from \texttt{occam1.mat} and \texttt{occam2.mat} in the assignment files \texttt{a2files.zip}.  Suppose we are considering three models to explain the data:
+\begin{enumerate}[label=(\roman*)]
+\item $\mathcal{M}_1$: The Bayesian basis regression model of Eq.(2)-(4), but with 
+\begin{equation}
+\bm{\phi}(x,\bm{z}) = \bm{\phi}(x) = (1,x,x^2,x^3,x^4,x^5)^{\top}
+\end{equation}
+\item $\mathcal{M}_2$: The Bayesian basis regression model of Eq.(2)-(4), but with 
+\begin{equation}
+\bm{\phi}(x,\bm{z}) =  \left( \exp[-\frac{(x-1)^2}{z_1^2}], \exp[-\frac{(x-5)^2}{z_2^2}] \right)^{\top}, \quad \bm{z} = (z_1,z_2)^{\top}
+\end{equation}
+\item $\mathcal{M}_3$: The Bayesian basis regression model of Eq.(2)-(4), but with 
+\begin{equation}
+\bm{\phi}(x,\bm{z}) =  \bm{\phi}(x) = (x,\cos(2x))^{\top}
+\end{equation}
+\end{enumerate}
+Parts of this question involve coding.  Please hand in the Matlab, Octave, or Python code you used to solve this question, along with the plots of results generated by the code used to answer the questions.  This code should be succinct and include comments.  Your code should not exceed 5 pages in length.   Answer all questions for both $\mathcal{D}_1$ and $\mathcal{D}_2$ unless the question explicitly states otherwise.
+
+\vspace{2mm}
+\begin{enumerate}
+\item (20 marks): Using your work from question 1, write code to plot a histogram of the evidence for each of these three models, conditioned on the maximum marginal likelihood values of all the hyperparameters $\bm{z}$, $\alpha^2$, and $\sigma^2$. To find these values, jointly optimize the log marginal likelihood with respect to these hyperparameters using a quasi-Newton method or non-linear conjugate gradients.  Based on the histogram, which hypotheses do you believe generated the data?  \\ 
+\textbf{Hint 1}: If you compute the Cholesky decomposition of $A = R^{\top} R$, where $R$ is an upper right triangular matrix, then 
+$A^{-1}\bm{b}$ = $R^{-1}(R^{-1})^{\top} \bm{b}$.  You can use this decomposition in conjunction with the helper function \texttt{solve\_chol.m} for numerically stable solutions to linear systems involving $A$.  
+Note also that $\log \det(A) = 2 \sum_i \log(R_{ii})$. \\
+\textbf{Hint 2}: Use the function \texttt{checkgrad.m}, or compute a finite difference scheme, to numerically check the derivatives of the log marginal likelihood with respect to the model hyperparameters, as a means to debug and to check your answer for 1(c). \\
+\textbf{Hint 3}: Some of the relevant matrices may be very poorly conditioned.  It is often useful to add a constant small amount of \emph{jitter} to the diagonal of these matrices, $A \to A + \epsilon I$, where $\epsilon$ is on the order of $10^{-6}$, before performing operations such as Cholesky decompositions. This procedure is advocated by Radford Neal in his 1996 PhD thesis, \emph{Bayesian Learning for Neural Networks}. \\
+\textbf{Hint 4}: You may wish to constrain your hyperparameters to be positive, but perform an unconstrained optimization.  To do so, you can optimize over the log hyperparameters in an unconstrained space.  When computing derivatives of the log marginal likelihood with respect to the log parameters, you will find it helpful to use the chain rule.\\
+\textbf{Hint 5}: I have included \texttt{minimize.m}, a robust implementation of non-linear conjugate gradients you can use to optimize the marginal likelihood with respect to hyperparameters.  You are, however, free to use another gradient based optimizer if you wish.
+
+\item (8 marks): Explain why the evidence histogram might disagree with the maximum likelihood ranking of models (in general and with respect to $\mathcal{D}_1$ and $\mathcal{D}_2$).
+\item (2 marks): Give the posterior mean and variance over the parameters of the model with highest evidence on $\mathcal{D}_2$.
+\item (3 marks): What values of the \emph{hyperparameters} maximized the marginal likelihood? 
+\item Optional (1 bonus mark): Plot the posterior over each set of model weights $\bm{w}$  (using extra coding space if required) for each dataset.
+
+\end{enumerate}
+
+\end{enumerate}
+
+(a)
+\includepdf[pages={-}]{3_plot_py.pdf} 
+(b)
+
+
+\begin{equation}
+    \text { Evidence } \simeq \text { Best fit likelihood } \times \text { Occam factor }
+\end{equation}
+
+So the evidence rank maybe disagree with the maximum likelihood rank due to the effect of occam factor. A better fit model may have a small occam factor thus have a small evidence. A less fit model may have a larger occam factor which can lead to large evidence. Our target is to find a model that can balance between the best fit likelihood and occam factor, which is a "suitable" model in the statement above.
+
+(c)
+Refer to the table above.
+
+
+(d)
+Refer to the section posterior above.
+
+
+% (e)
+
+
+\vspace{10mm}
+\textbf{Markov chain Monte Carlo} \\
+(15 marks)
+
+Follow Iain Murray's MCMC practical at \\
+\url{http://homepages.inf.ed.ac.uk/imurray2/teaching/09mlss/handout.pdf}
+
+Complete section 4, and answer the MCMC questions in section 5.
+
+Hand in (1) your code for section 4, and (2) your answers to the 5 MCMC questions.  The code is worth 10 marks, and the questions are worth 1 mark each.  There are thus 15 marks for this part of the assignment.
+
+
+% \includepdf
+
+% \includepdf[pages={1}]{}
+% \includegraphics{.pdf}
+\includepdf[pages={-}]{4_solution_py.pdf} 
+\end{document}
+

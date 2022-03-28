@@ -1,0 +1,329 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath, amssymb, amsthm} % ams packages %amsfonts is loaded by amssymb
+\usepackage[all,warning]{onlyamsmath}
+\usepackage{graphics, graphicx} % graphics packages
+
+
+\usepackage[margin=1in]{geometry} % more reasonable margins
+\usepackage{booktabs} % prettier tables
+\usepackage{units} % prettier fractions (?)
+
+% Small sections of multiple columns
+\usepackage{multicol}
+
+\usepackage{bm}
+
+\usepackage{natbib}
+%\usepackage{minted}
+%\usepackage{tikz} % make graphics in latex
+%\usetikzlibrary{shapes,decorations}
+%\usetikzlibrary{arrows}
+%\usepackage{pgfplots} % to make plots in latex
+%\pgfplotsset{compat=newest} % compatibility issue
+\usepackage{enumitem, comment}
+
+% formatting
+\usepackage{fancyhdr} % for changing headers and footers
+\usepackage{url} % url 
+\usepackage[normalem]{ulem}
+\usepackage{color} % colored text + names %deprecated?
+
+
+
+% hyperlink in the document
+\usepackage{hyperref} % must be the last package loaded
+
+\usepackage{comment}
+
+\usepackage{parskip}
+\usepackage{listings}
+\usepackage{hyperref}
+
+
+% notations
+\newcommand{\one}{\ensuremath{\mathbf{1}}}
+\newcommand{\zero}{\ensuremath{\mathbf{0}}}
+\newcommand{\prob}{\ensuremath{\mathbf{P}}}
+\newcommand{\expec}{\ensuremath{\mathbf{E}}}
+\newcommand{\ind}{\ensuremath{\mathbf{I}}}
+\newcommand{\reals}{\ensuremath{\mathbb{R}}}
+\newcommand{\naturals}{\ensuremath{\mathbb{N}}}
+\newcommand{\defeq}{\ensuremath{\triangleq}}
+\newcommand{\sP}{\ensuremath{\mathsf{P}}}
+\newcommand{\sQ}{\ensuremath{\mathsf{Q}}}
+\newcommand{\sE}{\ensuremath{\mathsf{E}}}
+
+\newcommand{\mbf}[1]{{\boldsymbol{\mathbf{#1}}}}
+\renewcommand{\bm}{\mbf}
+
+\lstset{
+	language=Python,
+	basicstyle=\small,%\footnotesize,
+	otherkeywords={self},             % Add keywords here
+	keywordstyle=\footnotesize\color{blue},
+	emph={},          % Custom highlighting
+	emphstyle=\footnotesize\color{red},    % Custom highlighting style
+	stringstyle=\color{black},
+%	frame=tb,                         % Any extra options here
+	showstringspaces=false,
+    upquote=true
+}
+\hypersetup{%
+  colorlinks=True,% hyperlinks will be black
+  urlcolor=blue,
+%  linkbordercolor=blue,% hyperlink borders will be red
+  pdfborderstyle={/S/U/W 1}% border style will be underline of width 1pt
+}
+
+
+% environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+
+
+\title{\vspace{-20mm} Bayesian Machine Learning}
+\date{}
+\author{Fall 2021 \\
+\vspace{2mm}
+\textbf{Homework 3}  \\ \textbf{Due: Monday October 25}}
+
+
+\begin{document}
+\maketitle
+
+This assignment involves experimenting with functions for the predictive distribution and 
+marginal likelihood of a Gaussian process using the GPyTorch package.  Please 
+hand in your code. Try to make it succinct but commented.
+
+\textit{If you use an ipython notebook, please export it to a pdf and hand it in on gradescope. If you use python scripts, please upload them to brightspace.}
+
+The installation instruction for GPyTorch can be found at 
+\href{https://github.com/cornellius-gp/gpytorch}{here}. 
+You will need to have Python ($\geq$ 3.6 or greater) and \href{https://pytorch.org/}{PyTorch} (v1.8.1 or greater) installed (version numbers crucial).
+
+We suggest reading 
+\href{https://gpytorch.readthedocs.io/en/latest/examples/01_Simple_GP_Regression/Simple_GP_Regression.html}{this tutorial}
+for an intro to GPyTorch.
+
+\textbf{Gaussian Processes}
+
+Assume a dataset $\mathcal{D}$ of $n$ input (predictor) vectors
+$X = \{\bm{x}_1,\dots,\bm{x}_n\}$, each of dimension $D$,
+which index an $n \times 1$ vector of targets
+$\bm{y} = (y(\bm{x}_1),\dots,y(\bm{x}_n))^{\top}$.  If
+$f(\bm{x}) \sim \mathcal{GP}(\mu,k_{\bm{\gamma}})$, then any
+collection of function values $\bm{f}$ has a joint Gaussian
+distribution,
+\begin{align}
+ \bm{f} = f(X) = [f(\bm{x}_1),\dots,f(\bm{x}_n)]^{\top} \sim \mathcal{N}(\bm{\mu},K_{X,X}) \,,  \label{eqn: gpdef}
+\end{align}
+with mean vector and covariance matrix defined by the mean function and covariance kernel of
+the Gaussian process: $\bm{\mu}_i = \mu(\bm{x}_i)$, and $(K_{X,X})_{ij} = k_\bm{\gamma}(\bm{x}_i,\bm{x}_j)$,
+where the kernel $k_{\bm{\gamma}}$ is parametrized by $\bm{\gamma}$.  Assuming additive
+Gaussian noise, $y(\bm{x})|f(\bm{x}) \sim \mathcal{N}(y(\bm{x}); f(\bm{x}),\sigma^2)$,
+the predictive distribution of the GP evaluated at the
+$n_*$ test points indexed by $X_*$, is given by
+\begin{align}
+ \bm{f}_*|X_*,&X,\bm{y},\bm{\gamma},\sigma^2 \sim \mathcal{N}(\mathbb{E}[\bm{f}_*],\text{cov}(\bm{f}_*)) \,, \label{eqn: fullpred}  \\
+ \mathbb{E}[\bm{f}_*] &= \bm{\mu}_{X_*}  + K_{X_*,X}[K_{X,X}+\sigma^2 I]^{-1} (\bm{y} - \bm{\mu}_X)\,,    \\
+ \text{cov}(\bm{f}_*) &= K_{X_*,X_*} - K_{X_*,X}^{\top}[K_{X,X}+\sigma^2 I]^{-1}K_{X,X_*} \,. \label{eqn: predcov}
+\end{align}
+$K_{X_*,X}$, for example, represents the $n_* \times n$ matrix of covariances between
+the GP evaluated at $X_*$ and $X$.   $\bm{\mu}_{X}$  and $\bm{\mu}_{X_*}$ are mean
+vectors evaluated at $X$ and $X_*$, and $K_{X,X}$ is the $n \times n$ covariance
+matrix evaluated at training inputs~$X$.
+All covariance matrices implicitly depend on the kernel hyperparameters $\bm{\gamma}$.  In practice, we are typically interested in the diagonal of Eq.~\eqref{eqn: predcov} to characterize predictive uncertainty.  
+
+The marginal likelihood of the Gaussian process is given by
+\begin{equation}
+ \log p(\bm{y} | \bm{\gamma}, X) \propto -(\bm{y}-\bm{\mu}_X)^{\top}(K_{\bm{\gamma}}+\sigma^2 I)^{-1}(\bm{y}-\bm{\mu}_X) - \log|K_{\bm{\gamma}} + \sigma^2 I|\,,  \label{eqn: mlikeli}
+\end{equation}
+where we have used $K_{\bm{\gamma}}$ as shorthand for $K_{X,X}$ given~$\bm{\gamma}$.  
+
+In the following questions, we will assume a mean function $\mu = 0$.
+
+We will primarily consider six kernel functions:
+\begin{align}
+k_{\text{BM}}(x,x') &= \min (x, x') \\
+k_{\text{RBF}}(x,x') &=  a^2 \exp(-\frac{||x-x'||^2}{2\ell^2}) \\
+k_{\text{ARD}}(x,x') &= a^2 \exp(-(x-x')^{\top} A^{-1} (x-x')) \,, A_{ij} = \delta_{ij} \ell_i^{2} \\
+k_{\text{OU}}(x,x') &= a^2 \exp(-\frac{||x-x'||}{\ell}) \\
+k_{\text{PER}}(x,x') &= a^2 \exp(-\frac{2\sin^2(\frac{x-x'}{2})}{\ell^2}) \\
+k_{\text{IQ}}(x,x') &= (c + \frac{||x - x'||^2}{\ell^2})^{-1/2}
+\end{align}
+
+%Inside the assignment files you will find the helper functions
+%\begin{verbatim}
+%covSEiso.m: the RBF kernel
+%covSEard.m: the RBF kernel modified to have a different length-scale for each input dimension
+%covMatern{iso,ard}.m: the OU kernel corresponds to a special setting of the parameters
+%covRQ{iso,ard}.m: the rational quadratic kernel
+%covPER{iso,ard}.m: the periodic kernel
+%solve_chol.m: helpful for solving linear systems
+%minimize.m: a non-linear conjugate gradients method, helpful for learning kernel hypers
+%\end{verbatim}
+%as well as several other functions you may find useful.
+
+
+\begin{enumerate}
+\item Prior Sampling \\
+(10 marks)
+
+\begin{enumerate}[label=(\alph*)]
+\item (4 marks): For $\ell = 20$, $a^2 = 5$, draw a sample prior function from a Gaussian process evaluated at $X = \{1,2,\dots,100\}$, $\bm{f} = f(X)$, with each of the above kernels, and a zero mean function.  Create a plot and label each of the functions.  Note that in this problem the inputs are one dimensional, $x \in \mathbb{R}^1$, and so 
+$k_{\text{RBF}}$ and $k_{\text{ARD}}$ are equivalent.
+
+For this task we recomend using the class \texttt{ExactGPModel} defined in 
+\href{https://gpytorch.readthedocs.io/en/latest/examples/01_Simple_GP_Regression/Simple_GP_Regression.html}{this tutorial}.
+
+We have reproduced the \texttt{ExactGPModel} class here:
+\begin{lstlisting}
+class ExactGPModel(gpytorch.models.ExactGP):
+	def __init__(self, train_x, train_y, likelihood):
+		super(ExactGPModel, self).__init__(train_x, train_y, 
+				likelihood)
+		self.mean_module = gpytorch.means.ConstantMean()
+		self.covar_module = gpytorch.kernels.ScaleKernel(
+					gpytorch.kernels.RBFKernel())
+
+	def forward(self, x):
+		mean_x = self.mean_module(x)
+		covar_x = self.covar_module(x)
+		return gpytorch.distributions.MultivariateNormal(mean_x, 
+					covar_x)
+\end{lstlisting}
+You can sample from the prior distribution by setting the training data for 
+\texttt{train\_x}, \texttt{train\_y} parameters of \texttt{ExactGPModel}:
+\begin{lstlisting}
+model = ExactGPModel(train_x, None, likelihood)
+samples = model(test_data).sample(sample_shape=torch.Size(1000,))
+\end{lstlisting}
+You can manually set a kernel parameter \texttt{<parameter\_name>} by setting the \\
+\texttt{\_<parameter\_name>} attribute of
+the \texttt{gpytorch.Kernel} instance. For example you can create an RBF kernel with
+output scale $5$ and length-scale $20$ as follows:
+\begin{lstlisting}
+    kernel = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
+    kernel.outputscale = 5.
+    kernel.base_kernel.lengthscale = 20.
+\end{lstlisting}
+We recommend checking the hyper-parameter setting tutorial at \href{https://gpytorch.readthedocs.io/en/latest/examples/00_Basic_Usage/Hyperparameters.html}{this tutorial} if you have any further issues. For your own kernels, you may instead wish to set parameters like
+\begin{lstlisting}
+    kernel.base_kernel.alpha.data = 2.
+\end{lstlisting}
+
+You can find a list and descriptions of the kernels implemented in GPyTorch
+\href{https://gpytorch.readthedocs.io/en/latest/kernels.html}{here}. Note that 
+$k_{\text{BM}},$ $k_{\text{OU}}$ and $k_{\text{IQ}}$ are not implemented in the library. You will need to implement
+them yourself. See the source code for e.g. $k_{\text{poly}}$ 
+(\href{https://github.com/cornellius-gp/gpytorch/blob/master/gpytorch/kernels/polynomial_kernel.py}{here})
+and $k_{\text{PER}}$ 
+(\href{https://github.com/cornellius-gp/gpytorch/blob/master/gpytorch/kernels/periodic_kernel.py}{here})
+for reference.
+
+Here is an example implementation of RBF kernels:
+\begin{lstlisting}
+class RBFKernel(gpytorch.kernels.Kernel):
+    def __init__(self, **kwargs):
+        super(RBFKernel, self).__init__(has_lengthscale=True, **kwargs)
+
+    def postprocess_rbf(self, dist_mat):
+        return dist_mat.div_(-2).exp_()
+
+	def forward(self, x1, x2, diag=False, **params):
+		x1_ = x1.div(self.lengthscale)
+		x2_ = x2.div(self.lengthscale)
+		return self.covar_dist(x1_, x2_, square_dist=True, diag=diag,
+		     dist_postprocess_func=self.postprocess_rbf,
+	         postprocess=True, **params)
+\end{lstlisting}
+
+Note that automatic relevance determination (ARD) is built within the covar distance function and can be specified with \texttt{ard\_num\_dims}.
+
+\item (6 marks): Comment on the behaviour of the distribution over prior functions as you vary the hyperparameters $a$, $\ell$, and $\alpha$, with both analytic and empirical support (plots of sample prior functions) for your reasoning.
+\end{enumerate}
+
+Kerner hyperparameters $a$, $\ell$, and $\alpha$ or c.
+
+\textbf{Lengthscale $\ell$}
+
+Lengthscale $\ell$, a larger lengthscale means that the learnt function varies less in that direction, the input is more correlated, which means that that feature is irrelevant for the learnt function. In other word, a small lengthscale will make the samples $f(1)$ and $f(2)$ less correlated.
+
+\textbf{Scale $a^2$}
+
+Scale $a^2$ is a scaler parameter for the kernel which can adjust the output range of kernel. For large values, the range of f functin output will be large magnitude.
+Fro small value of $a^2$, the range of f function output will be scaled to a small range.
+
+\textbf{IQ hyperparameter c}
+C is like given a mean or basis for the distance measure, a larger c will make the difference of distance less dominate, while a small c will make the the difference of distance more significant.
+
+\item Posterior Sampling \\ 
+(12 marks)
+\\ \\
+Load the dataset $\mathcal{D}$ from \texttt{datatest.mat} .  
+These data $\mathcal{D} = \{X,\bm{y}\}$ were generated from the model:
+\begin{align}
+y(x) &= f(x) + \epsilon \\
+f(x) &= x + x^2 - 14 x^3 + x^4 + 1000\cos(x) \\
+\epsilon &\sim \mathcal{N}(0,900^2) \\
+\end{align}
+evaluated at $X= \{1,2,\dots,15\}$ to form $\bm{y} = y(X)$.
+
+%The function $f(x)$ is stored as a function handle \texttt{f @(x)}, 
+%the observed data are stored as the variable \texttt{y}, 
+%and the data are indexed by inputs X stored as \texttt{x}.
+The observed data are stored at the key \texttt{y}, 
+and the data are indexed by inputs $X$ stored at the key \texttt{x};
+the test data are indexed by inputs $X_*$ storred at the key
+\texttt{xstar}. You can load the data using \texttt{scipy.io.loadmat}:
+\begin{lstlisting}
+    D = loadmat("datatest.mat")
+    x = D["x"]
+    y = D["y"]
+    x_star = D["xstar"]	
+    x = torch.tensor(x)
+    ...
+\end{lstlisting}
+
+Our goal is to recover the true noise-free latent $f(x)$ at a set of locations $X_*$ given by the variable \texttt{xstar}.  Although this seems like an almost intractable problem -- there is non-trivial variation in the true function and a relatively large amount of noise -- and we would have \emph{no idea} of what to guess as a parametric form for this function, 
+we can almost exactly recover the true function using a Gaussian process with an RBF kernel even with 15 training points!
+
+Model the data as being generated by a Gaussian process noise free function $g(x)$ plus additive Gaussian noise with noise variance $900^2$.  Use GPs with OU and RBF kernel functions, with length-scale $\ell = 5$ and $a = \text{stdev}[\bm{y}]$, showing the mean predictions, and 95\% of the posterior predictive mass, evaluated at the test points.  Create a plot that contains (1) the data points; (2) the predictive mean; and (3) 95\% of the predictive probability mass ($2 \times \text{stdev}[f(x_*)], x_* \in X_*$) for GPs with each of these two kernels.  Before fitting the data, be sure to subtract the empirical mean from the data, to fit your modelling assumptions.  When you make predictions with the GP, add back on the empirical mean.  Also, on a separate plot, show two sample functions from the posterior function of the Gaussian process for each kernel (4 sample functions in total), evaluated at \texttt{xstar}, alongside the observed data points.
+
+(Optional - 1 bonus mark): See what happens as you vary the length-scale $\ell$ and signal variance $a^2$ parameters.  Generate datasets from this fourth degree polynomial with more or less noise.  Try different functional forms for the noise free functions.  See how well the Gaussian process with various kernels can reconstruct functions with discontinuities, sudden changes, etc.  What happens as you get more data? Less data?
+
+
+\item Learning the Kernel Hyperparameters \\
+(20 marks) \\
+
+\begin{enumerate}[label=(\alph*)]
+\item Use the marginal likelihood {gpytorch.mlls.ExactMarginalLogLikelihood} with {ExactGPModel} to learn the kernel hyperparameters (including noise variance) on the problem in question 2.  Plot the resulting posterior predictive mean functions for GPs with the RBF kernel and OU kernel using the optimized hyperparameters versus previously used hyperparameters ($\ell = 5$ and $a = \text{stdev}[\bm{y}]$) in question 2.  Explain why or why not there may be any significant differences in this particular case.
+\item Load \texttt{2dfunc.mat}. This data has two input dimensions and a scalar output. Visualise the data, for example
+using \texttt{matplotlib}'s \texttt{plot\_surface}.
+Fit the data using a GP using the ARD kernel. Comment
+on the fit. How much noise is in the data?  Instead fit the data without ARD and comment on the difference.  What is the relative probability of a GP with the \texttt{ard} and \texttt{rbf} kernels (note in the RBF kernel the length-scale is the same for each dimension)?
+
+\item (Optional - 1 bonus mark): Generate data from a GP with a given kernel and known ground truth hyperparameters.  See how accurately you can recover these ground truth parameters through marginal likelihood optimization, as we vary the number of datapoints and the noise in the data.  Try comparing with any other approach to learning the kernel hyperparameters (e.g. looking at the empirical autocorrelations).  See how sensitive good performance is to the settings of hyperparameters (by manually adjusting these parameters) under different settings.
+
+\end{enumerate}
+
+\textit{Hint - applies to both 2) and 3)}: You may get better results out of rescaling the inputs to $[0,1]$ and the outputs to have zero mean and standard deviation one. It's also possible to do all optimization on the original scale. But, if you do use rescaling, please remember to plot everything on the original scale.
+
+\item Learning the Kernel \\
+(20 marks) \\
+
+Load \texttt{airline.mat}.  Create a composition of kernels (any discussed in class -- except the spectral mixture kernel) to model these data.  Justify your choices.  Show an extrapolation 20 years outside of the training data, with both the predictive mean and 95\% of the predictive posterior mass.  Compare your predictions at testing locations \texttt{xtest} to the withheld data \texttt{ytest}.
+
+Hint, you can combine kernels like
+\begin{lstlisting}
+covar_module = ScaleKernel(RBFKernel()) + ScaleKernel(MaternKernel())
+\end{lstlisting}
+\end{enumerate}
+\end{document}
+
